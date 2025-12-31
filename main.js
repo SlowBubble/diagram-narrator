@@ -65,6 +65,20 @@ function render() {
     narrativeStep = diagram.narrative[currentNarrativeIndex];
   }
 
+  // Calculate Dynamic Node Width
+  ctx.font = `bold ${FONT_SIZE}px Inter, sans-serif`; // Use bold for max width calculation
+  let maxTextWidth = 0;
+  diagram.nodes.forEach(node => {
+    const lines = node.text.split('\n');
+    lines.forEach(line => {
+      const width = ctx.measureText(line).width;
+      if (width > maxTextWidth) maxTextWidth = width;
+    });
+  });
+
+  // Add padding (e.g. 40px)
+  const effectiveNodeWidth = Math.max(NODE_WIDTH, maxTextWidth + 40);
+
   // Dynamic Centering Calculation
   let minX = Infinity, maxX = -Infinity;
   let minY = Infinity, maxY = -Infinity;
@@ -105,7 +119,7 @@ function render() {
       isHighlighted = true;
     }
 
-    drawEdge(startNode, endNode, isHighlighted);
+    drawEdge(startNode, endNode, isHighlighted, effectiveNodeWidth);
   });
 
   // Draw Nodes
@@ -115,13 +129,13 @@ function render() {
     if (narrativeStep && narrativeStep.highlightedNodes && narrativeStep.highlightedNodes.includes(node.id)) {
       isHighlighted = true;
     }
-    drawNode(node, isHighlighted);
+    drawNode(node, isHighlighted, effectiveNodeWidth);
   });
 }
 
-function drawNode(node, isHighlighted) {
+function drawNode(node, isHighlighted, width) {
   const { centerX, centerY, text } = node;
-  const w = NODE_WIDTH;
+  const w = width; // Use dynamic width
   const h = NODE_HEIGHT;
   const x = centerX - w / 2;
   const y = centerY - h / 2;
@@ -154,9 +168,9 @@ function drawNode(node, isHighlighted) {
   }
 }
 
-function drawEdge(startNode, endNode, isHighlighted) {
-  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, NODE_WIDTH, NODE_HEIGHT);
-  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, NODE_WIDTH, NODE_HEIGHT);
+function drawEdge(startNode, endNode, isHighlighted, nodeWidth) {
+  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, nodeWidth, NODE_HEIGHT);
+  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, nodeWidth, NODE_HEIGHT);
 
   const headLength = 40; // 2x bigger head
 
