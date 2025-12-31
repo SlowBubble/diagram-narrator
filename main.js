@@ -27,6 +27,25 @@ function handleResize() {
 function handleInput(e) {
   if (e.code === 'Space') {
     nextStep();
+  } else if (e.code === 'ArrowLeft') {
+    if (currentDiagramIndex > 0) {
+      currentDiagramIndex--;
+      currentNarrativeIndex = -1;
+      // If we are coming back from Game Over state, this will restore render
+      render();
+      speak("");
+    }
+  } else if (e.code === 'ArrowRight') {
+    if (currentDiagramIndex < diagrams.length) {
+      currentDiagramIndex++;
+      currentNarrativeIndex = -1;
+      if (currentDiagramIndex < diagrams.length) {
+        render();
+        speak("");
+      } else {
+        drawGameOver();
+      }
+    }
   }
 }
 
@@ -120,7 +139,19 @@ function drawNode(node, isHighlighted) {
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, centerX, centerY);
+
+  const lines = text.split('\n');
+  if (lines.length > 1) {
+    const lineHeight = FONT_SIZE * 1.2;
+    const totalHeight = lineHeight * lines.length;
+    const startY = centerY - (totalHeight / 2) + (lineHeight / 2);
+
+    lines.forEach((line, i) => {
+      ctx.fillText(line, centerX, startY + (i * lineHeight));
+    });
+  } else {
+    ctx.fillText(text, centerX, centerY);
+  }
 }
 
 function drawEdge(startNode, endNode, isHighlighted) {
