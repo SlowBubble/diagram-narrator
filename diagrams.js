@@ -35,9 +35,9 @@ export const diagrams = [
   },
   {
     nodes: [
-      { id: "0", text: "College or\nVocational School", x: 0, y: 0 },
-      { id: "1", text: "High School", x: 1, y: 0 },
-      { id: "2", text: "Upper School", x: 1, y: 1 },
+      { id: "0", text: "College or\nVocational\nSchool", x: 0, y: 0 },
+      { id: "1", text: "High\nSchool", x: 1, y: 0 },
+      { id: "2", text: "Upper\nSchool", x: 1, y: 1 },
       { id: "3", text: "Elementary\nSchool", x: 0, y: 1 },
     ],
     edges: [

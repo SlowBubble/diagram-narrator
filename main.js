@@ -13,6 +13,15 @@ const GRID_Y = 400;
 const FONT_SIZE = 56;
 
 function init() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const diagramParam = urlParams.get('diagram');
+  if (diagramParam) {
+    const idx = parseInt(diagramParam, 10);
+    if (!isNaN(idx) && idx >= 0 && idx <= diagrams.length) {
+      currentDiagramIndex = idx;
+    }
+  }
+
   window.addEventListener('resize', handleResize);
   document.addEventListener('keydown', handleInput);
   handleResize(); // Initial size setup and render
@@ -24,6 +33,12 @@ function handleResize() {
   render();
 }
 
+function syncURL() {
+  const url = new URL(window.location);
+  url.searchParams.set('diagram', currentDiagramIndex);
+  window.history.replaceState({}, '', url);
+}
+
 function handleInput(e) {
   if (e.code === 'Space') {
     nextStep();
@@ -31,6 +46,7 @@ function handleInput(e) {
     if (currentDiagramIndex > 0) {
       currentDiagramIndex--;
       currentNarrativeIndex = -1;
+      syncURL();
       // If we are coming back from Game Over state, this will restore render
       render();
       speak("");
@@ -39,6 +55,7 @@ function handleInput(e) {
     if (currentDiagramIndex < diagrams.length) {
       currentDiagramIndex++;
       currentNarrativeIndex = -1;
+      syncURL();
       if (currentDiagramIndex < diagrams.length) {
         render();
         speak("");
@@ -256,6 +273,7 @@ function nextStep() {
   if (currentNarrativeIndex > diagram.narrative.length) {
     currentDiagramIndex++;
     currentNarrativeIndex = -1;
+    syncURL();
     if (currentDiagramIndex < diagrams.length) {
       render();
       // Wait for user input to start narrative of next diagram
