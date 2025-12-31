@@ -1,22 +1,4 @@
-const diagrams = [
-  {
-    nodes: [
-      { id: "0", text: "Learn", x: 0, y: 0 },
-      { id: "1", text: "Struggle", x: 0, y: 1 },
-      { id: "2", text: "Challenge", x: 1, y: 1 },
-    ],
-    edges: [
-      { id: "0", start: "1", end: "0" },
-      { id: "1", start: "2", end: "1" },
-    ],
-    narrative: [
-      { utter: "To learn", highlightedNodes: ["0"] },
-      { utter: "You have to struggle", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
-      { utter: "To struggle", highlightedNodes: ["1"] },
-      { utter: "You have to find a suitable challenge", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] }
-    ],
-  }
-];
+import { diagrams } from './diagrams.js';
 
 let currentDiagramIndex = 0;
 let currentNarrativeIndex = -1;

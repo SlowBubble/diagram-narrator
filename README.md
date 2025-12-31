@@ -1,4 +1,8 @@
 
+# m1b
+
+Separate out diagrams into a single file to import.
+
 # m1a
 - Start with index.html and main.js
 - Start with the diagrams JS data below.
