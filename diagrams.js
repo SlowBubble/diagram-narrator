@@ -54,4 +54,23 @@ export const diagrams = [
       { utter: "You have to finish elementary school", highlightedNodes: ["3", "2"], highlightedEdges: ["2"] },
     ],
   },
+  {
+    nodes: [
+      { id: "0", text: "Porter", x: 0, y: 0 },
+      { id: "1", text: "Harvard", x: 0, y: 1 },
+      { id: "2", text: "Central", x: 1, y: 0 },
+      { id: "3", text: "Kendall", x: 1, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "0", end: "1" },
+      { id: "1", start: "1", end: "2" },
+      { id: "2", start: "2", end: "3" },
+    ],
+    narrative: [
+      { utter: "Next stop, Porter Square. Doors open on your left.", highlightedNodes: ["0"] },
+      { utter: "Next stop, Harvard Square. Doors open on your right.", highlightedNodes: ["1"], highlightedEdges: ["0"] },
+      { utter: "Next stop, Central Square. Doors open on your right.", highlightedNodes: ["2"], highlightedEdges: ["1"] },
+      { utter: "Next stop, Kendall Square. Doors open on your right.", highlightedNodes: ["3"], highlightedEdges: ["2"] },
+    ],
+  },
 ];
