@@ -35,10 +35,10 @@ export const diagrams = [
   },
   {
     nodes: [
-      { id: "0", text: "College or\nVocational\nSchool", x: 0, y: 0 },
-      { id: "1", text: "High\nSchool", x: 1, y: 0 },
-      { id: "2", text: "Upper\nSchool", x: 1, y: 1 },
-      { id: "3", text: "Elementary\nSchool", x: 0, y: 1 },
+      { id: "0", text: "High\nSchool", x: 0, y: 0 },
+      { id: "1", text: "Upper\nSchool", x: 1, y: 0 },
+      { id: "2", text: "Elementary\nSchool", x: 1, y: 1 },
+      { id: "3", text: "Preschool", x: 0, y: 1 },
     ],
     edges: [
       { id: "0", start: "1", end: "0" },
@@ -46,12 +46,12 @@ export const diagrams = [
       { id: "2", start: "3", end: "2" },
     ],
     narrative: [
-      { utter: "To go to college or vocational school", highlightedNodes: ["0"] },
-      { utter: "You have to finish high school", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
-      { utter: "To go to high school", highlightedNodes: ["1"] },
-      { utter: "You have to finish upper school", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] },
-      { utter: "To go to upper school", highlightedNodes: ["2"] },
-      { utter: "You have to finish elementary school", highlightedNodes: ["3", "2"], highlightedEdges: ["2"] },
+      { utter: "To go to high school", highlightedNodes: ["0"] },
+      { utter: "You have to finish upper school", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
+      { utter: "To go to upper school", highlightedNodes: ["1"] },
+      { utter: "You have to finish elementary school", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] },
+      { utter: "To go to elementary school", highlightedNodes: ["2"] },
+      { utter: "You have to finish preschool", highlightedNodes: ["3", "2"], highlightedEdges: ["2"] },
     ],
   },
   {
