@@ -73,4 +73,27 @@ export const diagrams = [
       { utter: "Next stop, Kendall Square. Doors open on your right.", highlightedNodes: ["3"], highlightedEdges: ["2"] },
     ],
   },
+  {
+    nodes: [
+      { id: "0", text: "Big problem", x: 0, y: 0 },
+      { id: "1", text: "Break it down", x: 1, y: 0 },
+      { id: "2", text: "Solve each part", x: 1, y: 1 },
+      { id: "3", text: "Combine", x: 0, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "1", end: "0" },
+      { id: "1", start: "2", end: "1" },
+      { id: "2", start: "3", end: "2" },
+      { id: "3", start: "3", end: "0", dashed: true },
+    ],
+    narrative: [
+      { utter: "To solve a big problem", highlightedNodes: ["0"] },
+      { utter: "You have to break it down into smaller parts", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
+      { utter: "After you have broken it into smaller parts", highlightedNodes: ["1"] },
+      { utter: "You have to solve each part", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] },
+      { utter: "After you have solved each part", highlightedNodes: ["2"] },
+      { utter: "You have to combine the solutions together", highlightedNodes: ["3", "2"], highlightedEdges: ["2"] },
+      { utter: "Combining the solutions will help you solve the big problem", highlightedNodes: ["3", "0"], highlightedEdges: ["3"] },
+    ],
+  },
 ];

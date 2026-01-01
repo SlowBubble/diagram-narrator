@@ -143,7 +143,7 @@ function render() {
       isHighlighted = true;
     }
 
-    drawEdge(startNode, endNode, isHighlighted, effectiveNodeWidth);
+    drawEdge(startNode, endNode, isHighlighted, effectiveNodeWidth, edge.dashed);
   });
 
   // Draw Nodes
@@ -194,7 +194,7 @@ function drawNode(node, isHighlighted, width) {
   }
 }
 
-function drawEdge(startNode, endNode, isHighlighted, nodeWidth) {
+function drawEdge(startNode, endNode, isHighlighted, nodeWidth, isDashed = false) {
   const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, nodeWidth, NODE_HEIGHT);
   const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, nodeWidth, NODE_HEIGHT);
 
@@ -219,9 +219,15 @@ function drawEdge(startNode, endNode, isHighlighted, nodeWidth) {
   ctx.lineWidth = isHighlighted ? 12 : 8; // 2x thicker
 
   ctx.beginPath();
+  if (isDashed) {
+    ctx.setLineDash([20, 10]);
+  } else {
+    ctx.setLineDash([]);
+  }
   ctx.moveTo(startPt.x, startPt.y);
   ctx.lineTo(lineEndX, lineEndY);
   ctx.stroke();
+  ctx.setLineDash([]);
 
   drawArrowhead(startPt, endPt, isHighlighted);
 }
