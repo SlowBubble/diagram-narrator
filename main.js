@@ -9,7 +9,7 @@ const ctx = canvas.getContext('2d');
 const NODE_WIDTH = 400;
 const NODE_HEIGHT = 200;
 const GRID_X = 600;
-const GRID_Y = 400;
+const GRID_Y = 350;
 const FONT_SIZE = 56;
 
 function init() {
@@ -77,6 +77,23 @@ function render() {
   }
 
   const diagram = diagrams[currentDiagramIndex];
+
+  // Check for vertical arrows
+  let hasVerticalArrow = false;
+  const nMap = {};
+  diagram.nodes.forEach(n => nMap[n.id] = n);
+  for (const edge of diagram.edges) {
+    const s = nMap[edge.start];
+    const e = nMap[edge.end];
+    if (s && e && s.y !== e.y) {
+      hasVerticalArrow = true;
+      break;
+    }
+  }
+  const baseGap = GRID_Y - NODE_HEIGHT;
+  const effectiveGap = hasVerticalArrow ? baseGap : baseGap * 0.25;
+  const effectiveGridY = NODE_HEIGHT + effectiveGap;
+
   let narrativeStep = null;
   if (currentNarrativeIndex >= 0 && currentNarrativeIndex < diagram.narrative.length) {
     narrativeStep = diagram.narrative[currentNarrativeIndex];
@@ -111,10 +128,10 @@ function render() {
   const canvasCenterY = canvas.height / 2;
 
   const diagramCenterX = (minX + maxX) * GRID_X / 2;
-  const diagramCenterY = (minY + maxY) * GRID_Y / 2;
+  const diagramCenterY = (minY + maxY) * effectiveGridY / 2;
 
   const totalWidth = (maxX - minX) * GRID_X + effectiveNodeWidth;
-  const totalHeight = (maxY - minY) * GRID_Y + NODE_HEIGHT;
+  const totalHeight = (maxY - minY) * effectiveGridY + NODE_HEIGHT;
 
   const scale = Math.min(canvas.width / totalWidth, canvas.height / totalHeight, 1) * 0.9;
 
@@ -128,7 +145,7 @@ function render() {
   // First pass: Calculate positions (in logical grid coordinates)
   diagram.nodes.forEach(node => {
     const x = node.x * GRID_X;
-    const y = node.y * GRID_Y;
+    const y = node.y * effectiveGridY;
     nodeMap[node.id] = { ...node, centerX: x, centerY: y };
   });
 
