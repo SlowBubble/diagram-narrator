@@ -1,4 +1,7 @@
 
+# m1c
+- Do a final pass to scale the diagram so everything fit in the screen.
+
 # m1b
 
 Separate out diagrams into a single file to import.

@@ -110,18 +110,25 @@ function render() {
   const canvasCenterX = canvas.width / 2;
   const canvasCenterY = canvas.height / 2;
 
-  const gridSpanX = (maxX + minX) * GRID_X / 2;
-  const gridSpanY = (maxY + minY) * GRID_Y / 2;
+  const diagramCenterX = (minX + maxX) * GRID_X / 2;
+  const diagramCenterY = (minY + maxY) * GRID_Y / 2;
 
-  const offsetX = canvasCenterX - gridSpanX;
-  const offsetY = canvasCenterY - gridSpanY;
+  const totalWidth = (maxX - minX) * GRID_X + effectiveNodeWidth;
+  const totalHeight = (maxY - minY) * GRID_Y + NODE_HEIGHT;
+
+  const scale = Math.min(canvas.width / totalWidth, canvas.height / totalHeight, 1) * 0.9;
+
+  ctx.save();
+  ctx.translate(canvasCenterX, canvasCenterY);
+  ctx.scale(scale, scale);
+  ctx.translate(-diagramCenterX, -diagramCenterY);
 
   const nodeMap = {};
 
-  // First pass: Calculate positions with dynamic offset
+  // First pass: Calculate positions (in logical grid coordinates)
   diagram.nodes.forEach(node => {
-    const x = node.x * GRID_X + offsetX;
-    const y = node.y * GRID_Y + offsetY;
+    const x = node.x * GRID_X;
+    const y = node.y * GRID_Y;
     nodeMap[node.id] = { ...node, centerX: x, centerY: y };
   });
 
@@ -148,6 +155,8 @@ function render() {
     }
     drawNode(node, isHighlighted, effectiveNodeWidth);
   });
+
+  ctx.restore();
 }
 
 function drawNode(node, isHighlighted, width) {

@@ -58,8 +58,8 @@ export const diagrams = [
     nodes: [
       { id: "0", text: "Porter", x: 0, y: 0 },
       { id: "1", text: "Harvard", x: 0, y: 1 },
-      { id: "2", text: "Central", x: 1, y: 0 },
-      { id: "3", text: "Kendall", x: 1, y: 1 },
+      { id: "2", text: "Central", x: 1, y: 2 },
+      { id: "3", text: "Kendall", x: 2, y: 2 },
     ],
     edges: [
       { id: "0", start: "0", end: "1" },
