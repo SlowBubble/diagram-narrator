@@ -1,5 +1,12 @@
+
+# m2d
+- Support narrative
+  - When I press `shift+enter` (while not in a text modal), it should 
+
 # m2c
-- 
+- Support deleting nodes
+  - If I press backspace on a node, delete it and remove all edges that start or end at it.
+
 # m2b
 - Support drawing arrows
   - When I press `a`, start drawing an arrow from the current node.

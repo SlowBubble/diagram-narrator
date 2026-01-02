@@ -69,8 +69,13 @@ function handleInput(e) {
         const endNode = getOrCreate(cursor.x, cursor.y);
 
         if (endNode.id !== drawingStartNode.id) {
+          // Find a safe ID. "edge-N"
+          let idNum = 0;
+          while (edges.some(e => e.id === `edge-${idNum}`)) {
+            idNum++;
+          }
           const newEdge = {
-            id: `edge-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            id: `edge-${idNum}`,
             start: drawingStartNode.id,
             end: endNode.id
           };
@@ -80,6 +85,20 @@ function handleInput(e) {
       } else {
         // Starting the arrow
         drawingStartNode = getOrCreate(cursor.x, cursor.y);
+      }
+    }
+
+    if (e.key === 'Backspace') {
+      const nodeIndex = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
+      if (nodeIndex >= 0) {
+        const nodeId = nodes[nodeIndex].id;
+        nodes.splice(nodeIndex, 1);
+        // Remove connected edges
+        edges = edges.filter(edge => edge.start !== nodeId && edge.end !== nodeId);
+        // Also clear drawingStartNode if it was the deleted node
+        if (drawingStartNode && drawingStartNode.id === nodeId) {
+          drawingStartNode = null;
+        }
       }
     }
 
