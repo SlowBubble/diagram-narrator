@@ -1,3 +1,16 @@
+# m2a
+
+- Start with edit.html and edit.js
+- Goal: build an editor to create a diagram similar to those in diagrams.js.
+- Have a canvas for the entire window.
+  - Show a grid of nodes (start with 4x4).
+  - Have a cursor select which node you are on.
+  - arrow keys to move the cursor.
+  - Press enter to open a text modal to edit the node text.
+    - Press enter in the text modal to create the node with the text.
+    - Press shift+enter or cmd+enter to create new line in the text.
+    - Press escape to cancel the text modal.
+  - Press x will open a text modal showing the diagram in JSON format (pretty, 2 space indent).
 
 # m1c
 - Do a final pass to scale the diagram so everything fit in the screen.

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagram Editor</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #text-modal,
+    #json-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #text-modal.active,
+    #json-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      min-width: 300px;
+      max-width: 90%;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-family: inherit;
+      font-size: 16px;
+      margin-bottom: 10px;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #json-output {
+      width: 100%;
+      height: 300px;
+      font-family: monospace;
+      white-space: pre;
+      overflow: auto;
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .instructions {
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="editor-canvas"></canvas>
+
+  <div id="text-modal">
+    <div class="modal-content">
+      <div class="instructions">Enter to save, Shift+Enter for new line, Esc to cancel.</div>
+      <textarea id="node-text"></textarea>
+    </div>
+  </div>
+
+  <div id="json-modal">
+    <div class="modal-content">
+      <div class="instructions">Press Esc to close.</div>
+      <textarea id="json-output" readonly></textarea>
+    </div>
+  </div>
+
+  <script type="module" src="edit.js"></script>
+</body>
+
+</html>
