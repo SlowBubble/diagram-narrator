@@ -291,4 +291,289 @@ export const diagrams = [
       { utter: "They just keep going in a loop.", highlightedNodes: ["0"], highlightedEdges: ["loop"] },
     ],
   },
+  {
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "Sun",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "id": "node-1",
+        "text": "Mercury",
+        "x": 2,
+        "y": 0
+      },
+      {
+        "id": "node-2",
+        "text": "Venus",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "id": "node-3",
+        "text": "Earth",
+        "x": 2,
+        "y": 2
+      },
+      {
+        "id": "node-4",
+        "text": "Mars",
+        "x": 1,
+        "y": 3
+      },
+      {
+        "id": "node-5",
+        "text": "Jupiter",
+        "x": 0,
+        "y": 3
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "node-0",
+        "end": "node-1"
+      },
+      {
+        "id": "edge-1",
+        "start": "node-0",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-2",
+        "start": "node-0",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-3",
+        "start": "node-0",
+        "end": "node-4"
+      },
+      {
+        "id": "edge-4",
+        "start": "node-0",
+        "end": "node-5"
+      }
+    ],
+    "narrative": [
+      {
+        "utter": "What planet is closest to the Sun?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "It is Mercury",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What planet is the second closest to the Sun?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "It is Venus",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What planet is the third closest to the Sun?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "It is Earth",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What planet is the fourth closest to the Sun?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "It is Mars",
+        "highlightedNodes": [
+          "node-4"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What planet is the fifth closest to the Sun?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "It is Jupiter",
+        "highlightedNodes": [
+          "node-5"
+        ],
+        "highlightedEdges": []
+      },
+    ]
+  },
+  {
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "Daddy",
+        "x": 0,
+        "y": 1
+      },
+      {
+        "id": "node-1",
+        "text": "Mommy",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "id": "node-2",
+        "text": "Brother",
+        "x": 0,
+        "y": 2
+      },
+      {
+        "id": "node-3",
+        "text": "Me",
+        "x": 1,
+        "y": 2
+      },
+      {
+        "id": "node-4",
+        "text": "Grandpa",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "id": "node-5",
+        "text": "Grandma",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "id": "node-6",
+        "text": "Uncle",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "id": "node-7",
+        "text": "Aunt",
+        "x": 3,
+        "y": 1
+      },
+      {
+        "id": "node-8",
+        "text": "Cousin",
+        "x": 2,
+        "y": 2
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "node-0",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-1",
+        "start": "node-1",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-2",
+        "start": "node-0",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-3",
+        "start": "node-1",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-4",
+        "start": "node-4",
+        "end": "node-0"
+      },
+      {
+        "id": "edge-5",
+        "start": "node-5",
+        "end": "node-0"
+      },
+      {
+        "id": "edge-6",
+        "start": "node-5",
+        "end": "node-6"
+      },
+      {
+        "id": "edge-7",
+        "start": "node-4",
+        "end": "node-6"
+      },
+      {
+        "id": "edge-8",
+        "start": "node-6",
+        "end": "node-8"
+      },
+      {
+        "id": "edge-9",
+        "start": "node-7",
+        "end": "node-8"
+      }
+    ],
+    "narrative": [
+      {
+        utter: "This is me",
+        highlightedNodes: ["node-3"]
+      },
+      {
+        utter: "I have a Mommy and a Daddy",
+        highlightedNodes: ["node-1", "node-0"],
+        highlightedEdges: ["edge-2", "edge-3"]
+      },
+      {
+        utter: "I have a Brother",
+        highlightedNodes: ["node-2"],
+        highlightedEdges: ["edge-0", "edge-1"]
+      },
+      {
+        utter: "This is my grandma, which is my Daddy's Mommy",
+        highlightedNodes: ["node-5"],
+        highlightedEdges: ["edge-5", "edge-2"]
+      },
+      {
+        utter: "This is my grandpa, which is my Daddy's Daddy",
+        highlightedNodes: ["node-4"],
+        highlightedEdges: ["edge-4", "edge-2"]
+      },
+      {
+        utter: "This is my uncle, which is my Daddy's Brother",
+        highlightedNodes: ["node-6"],
+        highlightedEdges: ["edge-6", "edge-5", "edge-2"]
+      },
+      {
+        utter: "This is my cousin, which is my Uncle's Child",
+        highlightedNodes: ["node-8"],
+        highlightedEdges: ["edge-8", "edge-6", "edge-5", "edge-2"]
+      }
+    ]
+  },
 ];

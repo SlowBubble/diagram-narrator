@@ -60,7 +60,8 @@ function handleInput(e) {
         render();
         speak("");
       } else {
-        drawGameOver();
+        render();
+        speak("Game time is over. Go take a break.");
       }
     }
   }
@@ -352,7 +353,8 @@ function nextStep() {
       render();
       // Wait for user input to start narrative of next diagram
     } else {
-      drawGameOver();
+      render();
+      speak("Game time is over. Go take a break.");
     }
     return;
   }
@@ -377,9 +379,6 @@ function drawGameOver() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2);
-
-  document.removeEventListener('keydown', handleInput);
-  speak("Game time is over. Go take a break.");
 }
 
 function speak(text) {
