@@ -1,7 +1,8 @@
 
 # m2d
 - Support narrative
-  - When I press `shift+enter` (while not in a text modal), it should 
+  - When I press `shift+enter` (while not in a text modal), it should open a text modal to add narrative text.
+  - When I press enter in the text modal, it should add a new narrative step using the node as the highlighted node.
 
 # m2c
 - Support deleting nodes

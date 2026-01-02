@@ -23,6 +23,7 @@
     }
 
     #text-modal,
+    #narrative-modal,
     #json-modal {
       display: none;
       position: fixed;
@@ -37,6 +38,7 @@
     }
 
     #text-modal.active,
+    #narrative-modal.active,
     #json-modal.active {
       display: flex;
     }
@@ -88,6 +90,13 @@
     <div class="modal-content">
       <div class="instructions">Enter to save, Shift+Enter for new line, Esc to cancel.</div>
       <textarea id="node-text"></textarea>
+    </div>
+  </div>
+
+  <div id="narrative-modal">
+    <div class="modal-content">
+      <div class="instructions">Enter to add narrative step, Esc to cancel.</div>
+      <textarea id="narrative-text"></textarea>
     </div>
   </div>
 

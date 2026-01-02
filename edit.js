@@ -11,14 +11,17 @@ const FONT_SIZE = 56;
 let cursor = { x: 0, y: 0 };
 let nodes = []; // Array of { id, text, x, y }
 let edges = []; // Array of { id, start, end }
-let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json'
+let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
+let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 
 // Modal Elements
 const textModal = document.getElementById('text-modal');
 const nodeTextArea = document.getElementById('node-text');
 const jsonModal = document.getElementById('json-modal');
 const jsonOutput = document.getElementById('json-output');
+const narrativeModal = document.getElementById('narrative-modal');
+const narrativeTextArea = document.getElementById('narrative-text');
 
 // Initialize
 function init() {
@@ -40,7 +43,7 @@ function handleInput(e) {
     if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
     if (e.key === 'ArrowRight') cursor.x = Math.min(3, cursor.x + 1);
 
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       startEditing();
     }
@@ -48,6 +51,11 @@ function handleInput(e) {
     if (e.key === 'x') {
       e.preventDefault();
       showJson();
+    }
+
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      startNarrativeEditing();
     }
 
     if (e.key === 'a') {
@@ -109,6 +117,8 @@ function handleInput(e) {
     if (e.key === 'Escape') {
       closeJson();
     }
+  } else if (mode === 'edit-narrative') {
+    // Modal handles focus
   }
 }
 
@@ -120,7 +130,21 @@ nodeTextArea.addEventListener('keydown', (e) => {
     saveNodeText();
   } else if (e.key === 'Escape') {
     e.preventDefault();
+    e.stopPropagation();
     cancelEditing();
+  }
+});
+
+// Narrative Area specific handling
+narrativeTextArea.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey && !e.metaKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    saveNarrativeStep();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    e.stopPropagation();
+    cancelNarrativeEditing();
   }
 });
 
@@ -171,6 +195,35 @@ function cancelEditing() {
   render();
 }
 
+function startNarrativeEditing() {
+  mode = 'edit-narrative';
+  narrativeTextArea.value = '';
+  narrativeModal.classList.add('active');
+  narrativeTextArea.focus();
+}
+
+function saveNarrativeStep() {
+  const text = narrativeTextArea.value.trim();
+  if (text) {
+    const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+    const highlightedNodes = node ? [node.id] : [];
+
+    narrative.push({
+      utter: text,
+      highlightedNodes: highlightedNodes,
+      highlightedEdges: []
+    });
+  }
+  cancelNarrativeEditing();
+}
+
+function cancelNarrativeEditing() {
+  mode = 'navigate';
+  narrativeModal.classList.remove('active');
+  narrativeTextArea.value = '';
+  render();
+}
+
 function showJson() {
   mode = 'view-json';
   const diagram = {
@@ -181,7 +234,7 @@ function showJson() {
       y: n.y
     })),
     edges: edges,
-    narrative: []
+    narrative: narrative
   };
   jsonOutput.value = JSON.stringify(diagram, null, 2);
   jsonModal.classList.add('active');
