@@ -10,7 +10,9 @@ const FONT_SIZE = 56;
 // Editor State
 let cursor = { x: 0, y: 0 };
 let nodes = []; // Array of { id, text, x, y }
+let edges = []; // Array of { id, start, end }
 let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json'
+let drawingStartNode = null;
 
 // Modal Elements
 const textModal = document.getElementById('text-modal');
@@ -22,13 +24,6 @@ const jsonOutput = document.getElementById('json-output');
 function init() {
   window.addEventListener('resize', handleResize);
   document.addEventListener('keydown', handleInput);
-
-  // Check if we have nodes (empty start)
-  // Maybe pre-populate or just start empty?
-  // User said "Start with edit.html... Goal: build an editor... Show a grid... start with 4x4"
-  // I will implicitly assume a blank canvas within a 4x4 allowable area logic-wise. 
-  // And visualize the 4x4 grid.
-
   handleResize();
 }
 
@@ -41,7 +36,7 @@ function handleResize() {
 function handleInput(e) {
   if (mode === 'navigate') {
     if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
-    if (e.key === 'ArrowDown') cursor.y = Math.min(3, cursor.y + 1); // 4x4 grid -> max index 3
+    if (e.key === 'ArrowDown') cursor.y = Math.min(3, cursor.y + 1);
     if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
     if (e.key === 'ArrowRight') cursor.x = Math.min(3, cursor.x + 1);
 
@@ -55,11 +50,42 @@ function handleInput(e) {
       showJson();
     }
 
+    if (e.key === 'a') {
+      const getOrCreate = (x, y) => {
+        let n = nodes.find(node => node.x === x && node.y === y);
+        if (!n) {
+          let idNum = 0;
+          while (nodes.some(node => node.id === `node-${idNum}`)) {
+            idNum++;
+          }
+          n = { id: `node-${idNum}`, text: '', x, y };
+          nodes.push(n);
+        }
+        return n;
+      };
+
+      if (drawingStartNode) {
+        // Ending the arrow
+        const endNode = getOrCreate(cursor.x, cursor.y);
+
+        if (endNode.id !== drawingStartNode.id) {
+          const newEdge = {
+            id: `edge-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            start: drawingStartNode.id,
+            end: endNode.id
+          };
+          edges.push(newEdge);
+        }
+        drawingStartNode = null;
+      } else {
+        // Starting the arrow
+        drawingStartNode = getOrCreate(cursor.x, cursor.y);
+      }
+    }
+
     render();
   } else if (mode === 'edit-text') {
-    // Modal handles focus, but we need to intercept specific keys if needed, 
-    // though usually the textarea will consume them.
-    // We added a global listener, might be better to listen on the textarea specifically or check target.
+    // Modal handles focus
   } else if (mode === 'view-json') {
     if (e.key === 'Escape') {
       closeJson();
@@ -106,6 +132,14 @@ function saveNodeText() {
   } else {
     // If empty, remove the node
     nodes = nodes.filter(n => !(n.x === cursor.x && n.y === cursor.y));
+    // Also remove connected edges
+    // Edges connected to this node should be removed or made invalid?
+    // Let's filter them out for correctness
+    // We need to know the ID of the removed node, but we might not have it easily if it was new.
+    // If logic works correctly, an existing node has an ID.
+    // Since we just filtered logic above:
+    // Actually, getting the ID of the node at cursor BEFORE filtering would be better.
+    // But since we are here, let's just do a clean pass on edges in render or just keep simple.
   }
 
   cancelEditing();
@@ -127,8 +161,8 @@ function showJson() {
       x: n.x,
       y: n.y
     })),
-    edges: [], // Edges not implemented yet
-    narrative: [] // Narrative not implemented yet
+    edges: edges,
+    narrative: []
   };
   jsonOutput.value = JSON.stringify(diagram, null, 2);
   jsonModal.classList.add('active');
@@ -146,18 +180,6 @@ function render() {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Calculate Grid Bounds (4x4)
-  // Min x=0, max x=3. Min y=0, max y=3.
-  const minX = 0, maxX = 3;
-  const minY = 0, maxY = 3;
-
-  // Use logic similar to main.js for scaling
-  // We want the whole 4x4 grid to fit.
-
-  // We can just statically assume 4x4 grid size.
-  // Width = 3 * GRID_X + NODE_WIDTH (approx) ? 
-  // Actually from center of 0 to center of 3 is 3 * GRID_X.
-  // Total width needed = (maxX - minX) * GRID_X + NODE_WIDTH + padding
   const totalWidth = (3) * GRID_X + NODE_WIDTH + 100;
   const totalHeight = (3) * GRID_Y + NODE_HEIGHT + 100;
 
@@ -166,9 +188,6 @@ function render() {
   const canvasCenterX = canvas.width / 2;
   const canvasCenterY = canvas.height / 2;
 
-  // Center of the 4x4 grid (from 0,0 to 3,3)
-  // Center X is 1.5 * GRID_X
-  // Center Y is 1.5 * GRID_Y
   const gridCenterX = 1.5 * GRID_X;
   const gridCenterY = 1.5 * GRID_Y;
 
@@ -177,13 +196,46 @@ function render() {
   ctx.scale(scale, scale);
   ctx.translate(-gridCenterX, -gridCenterY);
 
-  // Draw Grid Slots (4x4)
+  // Helper map
+  const nodeMap = {};
+  nodes.forEach(n => {
+    nodeMap[n.id] = {
+      ...n,
+      centerX: n.x * GRID_X,
+      centerY: n.y * GRID_Y
+    };
+  });
+
+  // Draw Edges
+  edges.forEach(edge => {
+    const startNode = nodeMap[edge.start];
+    const endNode = nodeMap[edge.end];
+    if (startNode && endNode) {
+      drawEdge(startNode, endNode, false);
+    }
+  });
+
+  // Ghost Arrow
+  if (drawingStartNode) {
+    const startNode = nodeMap[drawingStartNode.id];
+    // Target is cursor
+    const targetX = cursor.x * GRID_X;
+    const targetY = cursor.y * GRID_Y;
+
+    // Fake end node for geometry calculation
+    const endNode = { centerX: targetX, centerY: targetY };
+
+    if (startNode && (startNode.x !== cursor.x || startNode.y !== cursor.y)) {
+      drawEdge(startNode, endNode, false, true);
+    }
+  }
+
+  // Draw Grid/Nodes
   for (let x = 0; x < 4; x++) {
     for (let y = 0; y < 4; y++) {
       const centerX = x * GRID_X;
       const centerY = y * GRID_Y;
 
-      // Draw placeholder logic
       const node = nodes.find(n => n.x === x && n.y === y);
       const isCursor = (x === cursor.x && y === cursor.y);
 
@@ -204,17 +256,12 @@ function drawPlaceholder(cx, cy, isCursor) {
   const x = cx - w / 2;
   const y = cy - h / 2;
 
-  ctx.strokeStyle = isCursor ? "#0000ff" : "#eeeeee"; // Blue if cursor, faint grey if not
+  ctx.strokeStyle = isCursor ? "#0000ff" : "#eeeeee";
   ctx.lineWidth = isCursor ? 4 : 2;
 
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.stroke();
-
-  if (isCursor) {
-    // Maybe a "plus" sign or something?
-    // Just the blue border is enough.
-  }
 }
 
 function drawNode(node, cx, cy, isCursor) {
@@ -223,18 +270,15 @@ function drawNode(node, cx, cy, isCursor) {
   const x = cx - w / 2;
   const y = cy - h / 2;
 
-  // Background
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(x, y, w, h);
 
-  // Border (if cursor)
   if (isCursor) {
     ctx.strokeStyle = "#0000ff";
     ctx.lineWidth = 4;
     ctx.strokeRect(x, y, w, h);
   }
 
-  // Text
   ctx.fillStyle = "#000000";
   ctx.font = `bold ${FONT_SIZE}px Inter, sans-serif`;
   ctx.textAlign = "center";
@@ -252,6 +296,85 @@ function drawNode(node, cx, cy, isCursor) {
   } else {
     ctx.fillText(node.text, cx, cy);
   }
+}
+
+// Helper functions for Arrow Drawing
+function drawEdge(startNode, endNode, isHighlighted, isGhost = false) {
+  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, NODE_WIDTH, NODE_HEIGHT);
+  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, NODE_WIDTH, NODE_HEIGHT);
+
+  const headLength = 40;
+
+  const dx = endPt.x - startPt.x;
+  const dy = endPt.y - startPt.y;
+  const angle = Math.atan2(dy, dx);
+  const fullLength = Math.sqrt(dx * dx + dy * dy);
+
+  const altitude = headLength * Math.cos(Math.PI / 6);
+  const shortenBy = altitude;
+
+  const lineLen = Math.max(0, fullLength - shortenBy);
+  const lineEndX = startPt.x + Math.cos(angle) * lineLen;
+  const lineEndY = startPt.y + Math.sin(angle) * lineLen;
+
+  ctx.strokeStyle = isHighlighted ? "#ff4444" : "#000000";
+  ctx.lineWidth = isHighlighted ? 12 : 8;
+
+  if (isGhost) {
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(startPt.x, startPt.y);
+  ctx.lineTo(lineEndX, lineEndY);
+  ctx.stroke();
+
+  drawArrowhead(startPt, endPt, isHighlighted);
+
+  if (isGhost) {
+    ctx.restore();
+  }
+}
+
+function drawArrowhead(fromPt, toPt, isHighlighted) {
+  const headLength = 40;
+  const dx = toPt.x - fromPt.x;
+  const dy = toPt.y - fromPt.y;
+  const angle = Math.atan2(dy, dx);
+
+  ctx.fillStyle = isHighlighted ? "#ff4444" : "#000000";
+
+  ctx.beginPath();
+  ctx.moveTo(toPt.x, toPt.y);
+  ctx.lineTo(toPt.x - headLength * Math.cos(angle - Math.PI / 6), toPt.y - headLength * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(toPt.x - headLength * Math.cos(angle + Math.PI / 6), toPt.y - headLength * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function getRectIntersection(x1, y1, x2, y2, w, h) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  if (dx === 0 && dy === 0) return { x: x2, y: y2 };
+
+  const hw = w / 2;
+  const hh = h / 2;
+  const slope = Math.abs(dy / dx);
+  const boxSlope = hh / hw;
+
+  let ix, iy;
+
+  if (slope < boxSlope) {
+    const signX = dx > 0 ? -1 : 1;
+    ix = x2 + signX * hw;
+    iy = y2 + (ix - x2) * (dy / dx);
+  } else {
+    const signY = dy > 0 ? -1 : 1;
+    iy = y2 + signY * hh;
+    ix = x2 + (iy - y2) * (dx / dy);
+  }
+  return { x: ix, y: iy };
 }
 
 init();

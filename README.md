@@ -1,3 +1,12 @@
+# m2c
+- 
+# m2b
+- Support drawing arrows
+  - When I press `a`, start drawing an arrow from the current node.
+  - When I press `a` again, end the arrow.
+  - Show the arrow as I move the cursor in 0.5 opacity (unless start and end is the same node).
+  - If the arrow starts or ends at a non-existent node, just create a node with no text.
+
 # m2a
 
 - Start with edit.html and edit.js
