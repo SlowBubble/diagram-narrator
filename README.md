@@ -1,3 +1,9 @@
+# m2e
+- Current behavior
+  - When I press `a`, start drawing an arrow from the current node.
+  - When I press `a` again, end the arrow.
+- Want
+  - Also allow `enter` after `a` is pressed to end the arrow and then open the text modal for editing text.
 
 # m2d
 - Support narrative

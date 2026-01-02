@@ -15,6 +15,38 @@ let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 
+function getOrCreateNode(x, y) {
+  let n = nodes.find(node => node.x === x && node.y === y);
+  if (!n) {
+    let idNum = 0;
+    while (nodes.some(node => node.id === `node-${idNum}`)) {
+      idNum++;
+    }
+    n = { id: `node-${idNum}`, text: '', x, y };
+    nodes.push(n);
+  }
+  return n;
+}
+
+function finishArrowDrawing() {
+  if (!drawingStartNode) return;
+
+  const endNode = getOrCreateNode(cursor.x, cursor.y);
+  if (endNode.id !== drawingStartNode.id) {
+    let idNum = 0;
+    while (edges.some(e => e.id === `edge-${idNum}`)) {
+      idNum++;
+    }
+    const newEdge = {
+      id: `edge-${idNum}`,
+      start: drawingStartNode.id,
+      end: endNode.id
+    };
+    edges.push(newEdge);
+  }
+  drawingStartNode = null;
+}
+
 // Modal Elements
 const textModal = document.getElementById('text-modal');
 const nodeTextArea = document.getElementById('node-text');
@@ -45,6 +77,9 @@ function handleInput(e) {
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      if (drawingStartNode) {
+        finishArrowDrawing();
+      }
       startEditing();
     }
 
@@ -59,40 +94,10 @@ function handleInput(e) {
     }
 
     if (e.key === 'a') {
-      const getOrCreate = (x, y) => {
-        let n = nodes.find(node => node.x === x && node.y === y);
-        if (!n) {
-          let idNum = 0;
-          while (nodes.some(node => node.id === `node-${idNum}`)) {
-            idNum++;
-          }
-          n = { id: `node-${idNum}`, text: '', x, y };
-          nodes.push(n);
-        }
-        return n;
-      };
-
       if (drawingStartNode) {
-        // Ending the arrow
-        const endNode = getOrCreate(cursor.x, cursor.y);
-
-        if (endNode.id !== drawingStartNode.id) {
-          // Find a safe ID. "edge-N"
-          let idNum = 0;
-          while (edges.some(e => e.id === `edge-${idNum}`)) {
-            idNum++;
-          }
-          const newEdge = {
-            id: `edge-${idNum}`,
-            start: drawingStartNode.id,
-            end: endNode.id
-          };
-          edges.push(newEdge);
-        }
-        drawingStartNode = null;
+        finishArrowDrawing();
       } else {
-        // Starting the arrow
-        drawingStartNode = getOrCreate(cursor.x, cursor.y);
+        drawingStartNode = getOrCreateNode(cursor.x, cursor.y);
       }
     }
 
