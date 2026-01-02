@@ -1,3 +1,8 @@
+# m2g
+- Allow more nodes than 4x4 if the cursor move beyond the grid
+# m2f
+- To make things more intuitive, let's allow an edge to itself for both edit.html and index.html
+  - It will just loop in a rectangular manner from north, east, south, west back into the node
 # m2e
 - Current behavior
   - When I press `a`, start drawing an arrow from the current node.

@@ -279,4 +279,16 @@ export const diagrams = [
       { utter: "It is pointing Northwest", highlightedEdges: ["nw"], highlightedNodes: ["nw"] },
     ],
   },
+  {
+    nodes: [
+      { id: "0", text: "Task", x: 1, y: 1 },
+    ],
+    edges: [
+      { id: "loop", start: "0", end: "0" },
+    ],
+    narrative: [
+      { utter: "Some tasks are repetitive.", highlightedNodes: ["0"] },
+      { utter: "They just keep going in a loop.", highlightedNodes: ["0"], highlightedEdges: ["loop"] },
+    ],
+  },
 ];

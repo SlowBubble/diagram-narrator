@@ -211,7 +211,49 @@ function drawNode(node, isHighlighted, width) {
   }
 }
 
+function drawSelfLoop(node, isHighlighted, w, h, isDashed = false) {
+  const gap = 100; // Reach halfway to next node
+  const cx = node.centerX;
+  const cy = node.centerY;
+  const x = cx - w / 2;
+  const y = cy - h / 2;
+
+  ctx.strokeStyle = isHighlighted ? "#ff4444" : "#000000";
+  ctx.lineWidth = isHighlighted ? 12 : 8;
+
+  ctx.beginPath();
+  if (isDashed) {
+    ctx.setLineDash([20, 10]);
+  } else {
+    ctx.setLineDash([]);
+  }
+
+  const x_start = x + w * 0.75;
+  const y_start = y;
+  const x_end = x + w;
+  const y_end = y + h * 0.25;
+
+  ctx.moveTo(x_start, y_start);
+  ctx.lineTo(x_start, y_start - gap);
+  ctx.lineTo(x + w + gap, y_start - gap);
+  ctx.lineTo(x + w + gap, y_end);
+
+  // Stop short for arrowhead
+  const headLength = 40;
+  const altitude = headLength * Math.cos(Math.PI / 6);
+  ctx.lineTo(x + w + altitude, y_end);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+  drawArrowhead({ x: x + w + 1, y: y_end }, { x: x + w, y: y_end }, isHighlighted);
+}
+
 function drawEdge(startNode, endNode, isHighlighted, nodeWidth, isDashed = false) {
+  if (startNode.id === endNode.id) {
+    drawSelfLoop(startNode, isHighlighted, nodeWidth, NODE_HEIGHT, isDashed);
+    return;
+  }
+
   const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, nodeWidth, NODE_HEIGHT);
   const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, nodeWidth, NODE_HEIGHT);
 
