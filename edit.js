@@ -9,6 +9,8 @@ const FONT_SIZE = 56;
 
 // Editor State
 let cursor = { x: 0, y: 0 };
+let viewX = 0;
+let viewY = 0;
 let nodes = []; // Array of { id, text, x, y }
 let edges = []; // Array of { id, start, end }
 let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
@@ -116,9 +118,11 @@ function handleResize() {
 function handleInput(e) {
   if (mode === 'navigate') {
     if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
-    if (e.key === 'ArrowDown') cursor.y = Math.min(3, cursor.y + 1);
+    if (e.key === 'ArrowDown') cursor.y = cursor.y + 1;
     if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
-    if (e.key === 'ArrowRight') cursor.x = Math.min(3, cursor.x + 1);
+    if (e.key === 'ArrowRight') cursor.x = cursor.x + 1;
+
+    updateView();
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -170,6 +174,13 @@ function handleInput(e) {
   } else if (mode === 'edit-narrative') {
     // Modal handles focus
   }
+}
+
+function updateView() {
+  if (cursor.x < viewX) viewX = cursor.x;
+  if (cursor.x > viewX + 3) viewX = cursor.x - 3;
+  if (cursor.y < viewY) viewY = cursor.y;
+  if (cursor.y > viewY + 3) viewY = cursor.y - 3;
 }
 
 // Text Area specific handling
@@ -310,8 +321,8 @@ function render() {
   const canvasCenterX = canvas.width / 2;
   const canvasCenterY = canvas.height / 2;
 
-  const gridCenterX = 1.5 * GRID_X;
-  const gridCenterY = 1.5 * GRID_Y;
+  const gridCenterX = (viewX + 1.5) * GRID_X;
+  const gridCenterY = (viewY + 1.5) * GRID_Y;
 
   ctx.save();
   ctx.translate(canvasCenterX, canvasCenterY);
@@ -352,8 +363,8 @@ function render() {
   }
 
   // Draw Grid/Nodes
-  for (let x = 0; x < 4; x++) {
-    for (let y = 0; y < 4; y++) {
+  for (let x = viewX; x < viewX + 4; x++) {
+    for (let y = viewY; y < viewY + 4; y++) {
       const centerX = x * GRID_X;
       const centerY = y * GRID_Y;
 

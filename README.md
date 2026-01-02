@@ -1,5 +1,7 @@
 # m2g
-- Allow more nodes than 4x4 if the cursor move beyond the grid
+- For edit.html, allow more nodes than 4x4 if the cursor move beyond the grid
+  - Just render 4x4 at any time but show a window that includes the cursor's node.
+
 # m2f
 - To make things more intuitive, let's allow an edge to itself for both edit.html and index.html
   - It will just loop in a rectangular manner from north, east, south, west back into the node
