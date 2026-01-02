@@ -1,3 +1,6 @@
+# m2h
+- implement playing out the diaglog in edit.html, similar to index.html, by pressing space.
+  - When pressing esc (not in text modal), then you go to the zero step (the start of narration)
 # m2g
 - For edit.html, allow more nodes than 4x4 if the cursor move beyond the grid
   - Just render 4x4 at any time but show a window that includes the cursor's node.

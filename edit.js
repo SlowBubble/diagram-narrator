@@ -16,6 +16,7 @@ let edges = []; // Array of { id, start, end }
 let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
+let currentNarrativeIndex = -1; // For playback
 
 function getOrCreateNode(x, y) {
   let n = nodes.find(node => node.x === x && node.y === y);
@@ -101,6 +102,7 @@ const jsonModal = document.getElementById('json-modal');
 const jsonOutput = document.getElementById('json-output');
 const narrativeModal = document.getElementById('narrative-modal');
 const narrativeTextArea = document.getElementById('narrative-text');
+const narrationBanner = document.getElementById('narration-banner');
 
 // Initialize
 function init() {
@@ -162,6 +164,18 @@ function handleInput(e) {
           drawingStartNode = null;
         }
       }
+    }
+
+    if (e.code === 'Space') {
+      e.preventDefault();
+      nextStep();
+    }
+
+    if (e.key === 'Escape') {
+      currentNarrativeIndex = -1;
+      updateNarrationBanner();
+      speak("");
+      render();
     }
 
     render();
@@ -308,6 +322,54 @@ function closeJson() {
   render();
 }
 
+function nextStep() {
+  currentNarrativeIndex++;
+
+  if (currentNarrativeIndex > narrative.length) {
+    currentNarrativeIndex = -1;
+    updateNarrationBanner();
+    render();
+    speak("");
+    return;
+  }
+
+  updateNarrationBanner();
+  render();
+
+  if (currentNarrativeIndex < narrative.length) {
+    const step = narrative[currentNarrativeIndex];
+    speak(step.utter);
+  } else {
+    speak(""); // Neutral state
+  }
+}
+
+function updateNarrationBanner() {
+  if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
+    narrationBanner.textContent = `${currentNarrativeIndex + 1} / ${narrative.length}`;
+    narrationBanner.classList.add('active');
+  } else {
+    narrationBanner.classList.remove('active');
+  }
+}
+
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    if (!text) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const maleVoice = voices.find(v =>
+      v.name.includes("Google US English") ||
+      v.name.includes("David") ||
+      v.name.includes("Daniel") ||
+      v.name.toLowerCase().includes("male")
+    );
+    if (maleVoice) utterance.voice = maleVoice;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
 function render() {
   // Clear
   ctx.fillStyle = "#ffffff";
@@ -339,12 +401,22 @@ function render() {
     };
   });
 
+  // Determine narrative highlight
+  let narrativeStep = null;
+  if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
+    narrativeStep = narrative[currentNarrativeIndex];
+  }
+
   // Draw Edges
   edges.forEach(edge => {
     const startNode = nodeMap[edge.start];
     const endNode = nodeMap[edge.end];
     if (startNode && endNode) {
-      drawEdge(startNode, endNode, false);
+      let isHighlighted = false;
+      if (narrativeStep && narrativeStep.highlightedEdges && narrativeStep.highlightedEdges.includes(edge.id)) {
+        isHighlighted = true;
+      }
+      drawEdge(startNode, endNode, isHighlighted);
     }
   });
 
@@ -372,7 +444,11 @@ function render() {
       const isCursor = (x === cursor.x && y === cursor.y);
 
       if (node) {
-        drawNode(node, centerX, centerY, isCursor);
+        let isHighlighted = false;
+        if (narrativeStep && narrativeStep.highlightedNodes && narrativeStep.highlightedNodes.includes(node.id)) {
+          isHighlighted = true;
+        }
+        drawNode(node, centerX, centerY, isCursor, isHighlighted);
       } else {
         drawPlaceholder(centerX, centerY, isCursor);
       }
@@ -396,7 +472,7 @@ function drawPlaceholder(cx, cy, isCursor) {
   ctx.stroke();
 }
 
-function drawNode(node, cx, cy, isCursor) {
+function drawNode(node, cx, cy, isCursor, isHighlighted) {
   const w = NODE_WIDTH;
   const h = NODE_HEIGHT;
   const x = cx - w / 2;
@@ -411,7 +487,7 @@ function drawNode(node, cx, cy, isCursor) {
     ctx.strokeRect(x, y, w, h);
   }
 
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = isHighlighted ? "#ff0000" : "#000000";
   ctx.font = `bold ${FONT_SIZE}px Inter, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
