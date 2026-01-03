@@ -44,10 +44,11 @@ const FONT_SIZE = 56;
 
 function init() {
   const urlParams = new URLSearchParams(window.location.search);
-  const diagramParam = urlParams.get('diagram');
-  if (diagramParam) {
-    const idx = parseInt(diagramParam, 10);
-    if (!isNaN(idx) && idx >= 0 && idx <= diagrams.length) {
+  const idParam = urlParams.get('id');
+  if (idParam) {
+    // Find diagram by diagramId
+    const idx = diagrams.findIndex(d => d.diagramId === idParam);
+    if (idx >= 0) {
       currentDiagramIndex = idx;
     }
   }
@@ -55,6 +56,7 @@ function init() {
   window.addEventListener('resize', handleResize);
   document.addEventListener('keydown', handleInput);
   handleResize(); // Initial size setup and render
+  syncURL(); // Update URL with id parameter
 }
 
 function handleResize() {
@@ -65,7 +67,14 @@ function handleResize() {
 
 function syncURL() {
   const url = new URL(window.location);
-  url.searchParams.set('diagram', currentDiagramIndex);
+  if (currentDiagramIndex < diagrams.length) {
+    const diagram = diagrams[currentDiagramIndex];
+    if (diagram.diagramId) {
+      url.searchParams.set('id', diagram.diagramId);
+    }
+  } else {
+    url.searchParams.delete('id');
+  }
   window.history.replaceState({}, '', url);
 }
 

@@ -126,6 +126,13 @@ const narrationBanner = document.getElementById('narration-banner');
 
 // Initialize
 function init() {
+  // Check if we should load an existing diagram from localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  const idParam = urlParams.get('id');
+  if (idParam) {
+    loadDiagramFromLocalStorage(idParam);
+  }
+
   window.addEventListener('resize', handleResize);
   document.addEventListener('keydown', handleInput);
   canvas.addEventListener('click', handleCanvasClick);
@@ -1089,6 +1096,32 @@ function getRectIntersection(x1, y1, x2, y2, w, h) {
     ix = x2 + (iy - y2) * (dx / dy);
   }
   return { x: ix, y: iy };
+}
+
+function loadDiagramFromLocalStorage(id) {
+  try {
+    const stored = localStorage.getItem(id);
+    if (stored) {
+      const diagram = JSON.parse(stored);
+      if (diagram.diagramId) {
+        diagramId = diagram.diagramId;
+      }
+      if (diagram.lastEdited !== undefined) {
+        lastEdited = diagram.lastEdited;
+      }
+      if (diagram.nodes) {
+        nodes = diagram.nodes;
+      }
+      if (diagram.edges) {
+        edges = diagram.edges;
+      }
+      if (diagram.narrative) {
+        narrative = diagram.narrative;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load diagram from localStorage:', e);
+  }
 }
 
 function saveDiagramToLocalStorage() {

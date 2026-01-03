@@ -1,5 +1,6 @@
 export const diagrams = [
   {
+    diagramId: "learn-struggle-challenge",
     nodes: [
       { id: "0", text: "Learn", x: 0, y: 0 },
       { id: "1", text: "Struggle", x: 0, y: 1 },
@@ -17,6 +18,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "rent-earn-learn",
     nodes: [
       { id: "0", text: "Rent", x: 0, y: 0 },
       { id: "1", text: "Earn", x: 0, y: 1 },
@@ -34,6 +36,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "school-progression",
     nodes: [
       { id: "0", text: "High\nSchool", x: 0, y: 0 },
       { id: "1", text: "Upper\nSchool", x: 1, y: 0 },
@@ -55,6 +58,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "red-line-stops",
     nodes: [
       { id: "0", text: "Porter", x: 0, y: 0 },
       { id: "1", text: "Harvard", x: 0, y: 1 },
@@ -78,6 +82,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "big-problem-breakdown",
     nodes: [
       { id: "0", text: "Big problem", x: 0, y: 0 },
       { id: "1", text: "Break it down", x: 1, y: 0 },
@@ -102,6 +107,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "run-crash-cry-learn",
     nodes: [
       { id: "0", text: "Run", x: 0, y: 0 },
       { id: "1", text: "Crash", x: 0, y: 1 },
@@ -123,6 +129,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "grade-scale",
     nodes: [
       { id: "n1", text: "90-100%", x: 0, y: 0 },
       { id: "g1", text: "A", x: 1, y: 0 },
@@ -156,6 +163,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "clock-hours",
     nodes: [
       { id: "c", text: "Hour", x: 1, y: 1 },
       { id: "0", text: "12", x: 1, y: 0 },
@@ -184,6 +192,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "clock-minutes",
     nodes: [
       { id: "c", text: "Minutes", x: 1, y: 1 },
       { id: "0", text: "0", x: 1, y: 0 },
@@ -212,6 +221,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "compass-basic",
     nodes: [
       { id: "c", text: "Compass\nDirection", x: 1, y: 1 },
       { id: "0", text: "North", x: 1, y: 0 },
@@ -238,6 +248,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "compass-advanced",
     nodes: [
       { id: "c", text: "Compass\nDirection", x: 1, y: 1 },
       { id: "0", text: "North", x: 1, y: 0 },
@@ -280,6 +291,7 @@ export const diagrams = [
     ],
   },
   {
+    diagramId: "repetitive-task",
     nodes: [
       { id: "0", text: "Task", x: 1, y: 1 },
     ],
@@ -292,6 +304,7 @@ export const diagrams = [
     ],
   },
   {
+    "diagramId": "solar-system",
     "nodes": [
       {
         "id": "node-0",
@@ -431,6 +444,7 @@ export const diagrams = [
     ]
   },
   {
+    "diagramId": "family-tree",
     "nodes": [
       {
         "id": "node-0",
@@ -577,6 +591,7 @@ export const diagrams = [
     ]
   },
   {
+    "diagramId": "task-group-example",
     "nodes": [
       { "id": "n1", "text": "Task A", "x": 0, "y": 0 },
       { "id": "n2", "text": "Task B", "x": 1, "y": 0 },

@@ -1,7 +1,4 @@
 # wishlist
-- Save edit.html to offline storage, and then show them first in index.html
-- In index.html, when you press `Enter`, then navigate to the edit.html with the diagram from index.html passed through via a new query param that store the encoded JSON string.
-  - If the JSON does not have an diagramId field, then create an diagramId field.
 
 # m3b
 - In index.html, when iterating through diagrams in local storage, use id=diagramId instead of diagram= 
