@@ -1,5 +1,11 @@
 # wishlist
 
+# m3d
+- Add undo.js and support `cmd+z` to undo the last action in edit.html, and `cmd+shift+z` to redo an undone action.
+
+# m3c
+- When `a` is pressed, i.e. in edge drawing mode, if I mouse click on a node, then finish drawing the edge with that node as the end node.
+
 # m3b
 - In index.html, when iterating through diagrams in local storage, use id=diagramId instead of diagram= 
 - And in edit.html, allow accessing an existing diagram via id=diagramId also.

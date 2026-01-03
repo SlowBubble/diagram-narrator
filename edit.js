@@ -398,6 +398,9 @@ function handleCanvasClick(e) {
       selectedEdgeId = null;
       isNodeSelected = true;
     }
+    if (drawingStartNode) {
+      finishArrowDrawing();
+    }
     render();
     return;
   }
@@ -427,6 +430,9 @@ function handleCanvasClick(e) {
     } else {
       selectedNodeIds = node ? [node.id] : [];
       selectedEdgeIds = [];
+    }
+    if (drawingStartNode) {
+      finishArrowDrawing();
     }
     updateView();
     render();
