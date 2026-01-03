@@ -143,19 +143,55 @@ function render() {
 
   const nodeMap = {};
 
-  // First pass: Calculate positions (in logical grid coordinates)
-  diagram.nodes.forEach(node => {
+  // First pass: atomic nodes
+  diagram.nodes.filter(n => !n.children).forEach(node => {
     const x = node.x * GRID_X;
     const y = node.y * effectiveGridY;
-    nodeMap[node.id] = { ...node, centerX: x, centerY: y };
+    nodeMap[node.id] = {
+      ...node,
+      centerX: x,
+      centerY: y,
+      width: effectiveNodeWidth,
+      height: NODE_HEIGHT
+    };
   });
 
-  // Draw Node Groups
-  if (diagram.nodeGroups) {
-    diagram.nodeGroups.forEach(group => {
-      drawNodeGroup(group, nodeMap, effectiveNodeWidth);
+  // Second pass: group nodes
+  let changed = true;
+  while (changed) {
+    changed = false;
+    diagram.nodes.filter(n => n.children).forEach(n => {
+      if (nodeMap[n.id]) return;
+      const children = n.children.map(id => nodeMap[id]).filter(Boolean);
+      if (children.length === n.children.length) {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        children.forEach(c => {
+          minX = Math.min(minX, c.centerX - c.width / 2);
+          maxX = Math.max(maxX, c.centerX + c.width / 2);
+          minY = Math.min(minY, c.centerY - c.height / 2);
+          maxY = Math.max(maxY, c.centerY + c.height / 2);
+        });
+        const padding = 40;
+        nodeMap[n.id] = {
+          ...n,
+          centerX: (minX + maxX) / 2,
+          centerY: (minY + maxY) / 2,
+          width: (maxX - minX) + 2 * padding,
+          height: (maxY - minY) + 2 * padding
+        };
+        changed = true;
+      }
     });
   }
+
+  // Draw Node Groups
+  diagram.nodes.filter(n => n.children).forEach(group => {
+    let isHighlighted = false;
+    if (narrativeStep && narrativeStep.highlightedNodes && narrativeStep.highlightedNodes.includes(group.id)) {
+      isHighlighted = true;
+    }
+    drawNodeGroup(group, nodeMap, isHighlighted);
+  });
 
   // Draw Edges
   diagram.edges.forEach(edge => {
@@ -168,7 +204,7 @@ function render() {
       isHighlighted = true;
     }
 
-    drawEdge(startNode, endNode, isHighlighted, effectiveNodeWidth, edge.dashed);
+    drawEdge(startNode, endNode, isHighlighted, edge.dashed);
   });
 
   // Draw Nodes
@@ -178,15 +214,16 @@ function render() {
     if (narrativeStep && narrativeStep.highlightedNodes && narrativeStep.highlightedNodes.includes(node.id)) {
       isHighlighted = true;
     }
-    drawNode(node, isHighlighted, effectiveNodeWidth);
+    drawNode(node, isHighlighted);
   });
 
   ctx.restore();
 }
 
-function drawNode(node, isHighlighted, width) {
-  const { centerX, centerY, text } = node;
-  const w = width; // Use dynamic width
+function drawNode(node, isHighlighted) {
+  if (node.children) return; // Atomic nodes only
+  const { centerX, centerY, text, width } = node;
+  const w = width;
   const h = NODE_HEIGHT;
   const x = centerX - w / 2;
   const y = centerY - h / 2;
@@ -219,32 +256,15 @@ function drawNode(node, isHighlighted, width) {
   }
 }
 
-function drawNodeGroup(group, nodeMap, nodeWidth) {
-  const ids = group.nodes;
-  let minX = Infinity, maxX = -Infinity;
-  let minY = Infinity, maxY = -Infinity;
-
-  let found = false;
-  ids.forEach(id => {
-    const node = nodeMap[id];
-    if (node) {
-      found = true;
-      const x = node.centerX;
-      const y = node.centerY;
-      minX = Math.min(minX, x - nodeWidth / 2);
-      maxX = Math.max(maxX, x + nodeWidth / 2);
-      minY = Math.min(minY, y - NODE_HEIGHT / 2);
-      maxY = Math.max(maxY, y + NODE_HEIGHT / 2);
-    }
-  });
-
-  if (!found) return;
+function drawNodeGroup(group, nodeMap, isHighlighted) {
+  const info = nodeMap[group.id];
+  if (!info) return;
 
   const padding = 40;
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = isHighlighted ? "#ff0000" : "#000000";
+  ctx.lineWidth = isHighlighted ? 8 : 4;
   ctx.setLineDash([20, 10]);
-  ctx.strokeRect(minX - padding, minY - padding, (maxX - minX) + 2 * padding, (maxY - minY) + 2 * padding);
+  ctx.strokeRect(info.centerX - info.width / 2, info.centerY - info.height / 2, info.width, info.height);
   ctx.setLineDash([]);
 }
 
@@ -285,14 +305,14 @@ function drawSelfLoop(node, isHighlighted, w, h, isDashed = false) {
   drawArrowhead({ x: x + w + 1, y: y_end }, { x: x + w, y: y_end }, isHighlighted);
 }
 
-function drawEdge(startNode, endNode, isHighlighted, nodeWidth, isDashed = false) {
+function drawEdge(startNode, endNode, isHighlighted, isDashed = false) {
   if (startNode.id === endNode.id) {
-    drawSelfLoop(startNode, isHighlighted, nodeWidth, NODE_HEIGHT, isDashed);
+    drawSelfLoop(startNode, isHighlighted, startNode.width, startNode.height, isDashed);
     return;
   }
 
-  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, nodeWidth, NODE_HEIGHT);
-  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, nodeWidth, NODE_HEIGHT);
+  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, startNode.width, startNode.height);
+  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, endNode.width, endNode.height);
 
   const headLength = 40; // 2x bigger head
 

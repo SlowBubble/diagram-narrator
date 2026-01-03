@@ -15,7 +15,6 @@ let nodes = []; // Array of { id, text, x, y }
 let edges = []; // Array of { id, start, end }
 let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
-let nodeGroups = []; // Array of { nodes: [id1, id2, ...] }
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 let currentNarrativeIndex = -1; // For playback
 let hoveredEdgeId = null;
@@ -40,7 +39,16 @@ function getOrCreateNode(x, y) {
 function finishArrowDrawing() {
   if (!drawingStartNode) return;
 
-  const endNode = getOrCreateNode(cursor.x, cursor.y);
+  let endNode;
+  if (selectedNodeIds.length === 1) {
+    const node = nodes.find(n => n.id === selectedNodeIds[0]);
+    if (node) endNode = node;
+  }
+
+  if (!endNode) {
+    endNode = getOrCreateNode(cursor.x, cursor.y);
+  }
+
   let idNum = 0;
   while (edges.some(e => e.id === `edge-${idNum}`)) {
     idNum++;
@@ -180,8 +188,12 @@ function handleInput(e) {
     if (e.key === 'Enter' && !e.metaKey) {
       e.preventDefault();
       if (selectedNodeIds.length > 1) {
-        // Create nodeGroup
-        nodeGroups.push({ nodes: [...selectedNodeIds] });
+        // Create nodeGroup as a special node
+        let idNum = 0;
+        while (nodes.some(node => node.id === `group-${idNum}`)) {
+          idNum++;
+        }
+        nodes.push({ id: `group-${idNum}`, children: [...selectedNodeIds] });
         selectedNodeIds = []; // Clear selection after grouping
         render();
         return;
@@ -206,7 +218,15 @@ function handleInput(e) {
       if (drawingStartNode) {
         finishArrowDrawing();
       } else {
-        drawingStartNode = getOrCreateNode(cursor.x, cursor.y);
+        if (selectedNodeIds.length === 1) {
+          const potentialNode = nodes.find(n => n.id === selectedNodeIds[0]);
+          if (potentialNode) {
+            drawingStartNode = potentialNode;
+          }
+        }
+        if (!drawingStartNode) {
+          drawingStartNode = getOrCreateNode(cursor.x, cursor.y);
+        }
       }
     }
 
@@ -217,17 +237,21 @@ function handleInput(e) {
 
         edges = edges.filter(e => !edgesToDelete.has(e.id));
 
-        selectedNodeIds.forEach(nodeId => {
+        const nodesToDelete = new Set(selectedNodeIds);
+        nodesToDelete.forEach(nodeId => {
           nodes = nodes.filter(n => n.id !== nodeId);
           edges = edges.filter(e => e.start !== nodeId && e.end !== nodeId);
           if (drawingStartNode && drawingStartNode.id === nodeId) drawingStartNode = null;
         });
 
-        // Clean up nodeGroups
-        nodeGroups = nodeGroups.map(group => ({
-          ...group,
-          nodes: group.nodes.filter(id => nodes.some(n => n.id === id))
-        })).filter(group => group.nodes.length > 1);
+        // Clean up children references in group nodes if a child was deleted
+        nodes.forEach(n => {
+          if (n.children) {
+            n.children = n.children.filter(id => !nodesToDelete.has(id));
+          }
+        });
+        // Remove group nodes that have 1 or 0 children
+        nodes = nodes.filter(n => !n.children || n.children.length > 1);
 
         selectedNodeIds = [];
         selectedEdgeIds = [];
@@ -241,11 +265,14 @@ function handleInput(e) {
           if (drawingStartNode && drawingStartNode.id === nodeId) {
             drawingStartNode = null;
           }
-          // Clean up nodeGroups
-          nodeGroups = nodeGroups.map(group => ({
-            ...group,
-            nodes: group.nodes.filter(id => id !== nodeId)
-          })).filter(group => group.nodes.length > 1);
+          // Clean up children references in group nodes if a child was deleted
+          nodes.forEach(n => {
+            if (n.children) {
+              n.children = n.children.filter(id => id !== nodeId);
+            }
+          });
+          // Remove group nodes that have 1 or 0 children
+          nodes = nodes.filter(n => !n.children || n.children.length > 1);
         }
       }
     }
@@ -305,6 +332,48 @@ function handleCanvasClick(e) {
   }
 
   const coords = getGridCoords(mouseX, mouseY);
+  const gridPoint = getGridPoint(mouseX, mouseY);
+
+  // Helper map needed for group detection
+  const nodeMap = buildNodeMap();
+
+  // Check for group clicks (clicking border but not children)
+  const groupNode = nodes.find(n => {
+    if (!n.children) return false;
+    const info = nodeMap[n.id];
+    if (!info) return false;
+    const dx = Math.abs(gridPoint.x - info.centerX);
+    const dy = Math.abs(gridPoint.y - info.centerY);
+    if (dx < info.width / 2 && dy < info.height / 2) {
+      // It's inside the group. Now check if it's NOT inside any child.
+      const insideChild = n.children.some(childId => {
+        const cInfo = nodeMap[childId];
+        if (!cInfo) return false;
+        return Math.abs(gridPoint.x - cInfo.centerX) < cInfo.width / 2 &&
+          Math.abs(gridPoint.y - cInfo.centerY) < cInfo.height / 2;
+      });
+      return !insideChild;
+    }
+    return false;
+  });
+
+  if (groupNode) {
+    if (isMulti) {
+      if (selectedNodeIds.includes(groupNode.id)) {
+        selectedNodeIds = selectedNodeIds.filter(id => id !== groupNode.id);
+      } else {
+        selectedNodeIds.push(groupNode.id);
+      }
+    } else {
+      selectedNodeIds = [groupNode.id];
+      selectedEdgeIds = [];
+      selectedEdgeId = null;
+      isNodeSelected = true;
+    }
+    render();
+    return;
+  }
+
   if (coords.isOnNode && coords.x >= 0 && coords.y >= 0) {
     const node = nodes.find(n => n.x === coords.x && n.y === coords.y);
 
@@ -623,14 +692,15 @@ function cancelNarrativeEditing() {
 function showJson() {
   mode = 'view-json';
   const diagram = {
-    nodes: nodes.map(n => ({
-      id: n.id,
-      text: n.text,
-      x: n.x,
-      y: n.y
-    })),
+    nodes: nodes.map(n => {
+      const node = { id: n.id };
+      if (n.text !== undefined) node.text = n.text;
+      if (n.x !== undefined) node.x = n.x;
+      if (n.y !== undefined) node.y = n.y;
+      if (n.children) node.children = n.children;
+      return node;
+    }),
     edges: edges,
-    nodeGroups: nodeGroups,
     narrative: narrative
   };
   jsonOutput.value = JSON.stringify(diagram, null, 2);
@@ -714,14 +784,7 @@ function render() {
   ctx.translate(-gridCenterX, -gridCenterY);
 
   // Helper map
-  const nodeMap = {};
-  nodes.forEach(n => {
-    nodeMap[n.id] = {
-      ...n,
-      centerX: n.x * GRID_X,
-      centerY: n.y * GRID_Y
-    };
-  });
+  const nodeMap = buildNodeMap();
 
   // Determine narrative highlight
   let narrativeStep = null;
@@ -730,8 +793,13 @@ function render() {
   }
 
   // Draw Node Groups
-  nodeGroups.forEach(group => {
-    drawNodeGroup(group, nodeMap);
+  nodes.filter(n => n.children).forEach(group => {
+    let isSelected = selectedNodeIds.includes(group.id);
+    let isHighlighted = false;
+    if (narrativeStep && narrativeStep.highlightedNodes && narrativeStep.highlightedNodes.includes(group.id)) {
+      isHighlighted = true;
+    }
+    drawNodeGroup(group, nodeMap, isSelected, isHighlighted);
   });
 
   // Draw Edges
@@ -758,13 +826,26 @@ function render() {
   // Ghost Arrow
   if (drawingStartNode) {
     const startNode = nodeMap[drawingStartNode.id];
-    // Target is cursor
-    const targetX = cursor.x * GRID_X;
-    const targetY = cursor.y * GRID_Y;
+    // Target is cursor or selected node
+    let targetX, targetY, targetW, targetH, targetId;
+
+    if (selectedNodeIds.length === 1 && selectedNodeIds[0] !== drawingStartNode.id) {
+      const endInfo = nodeMap[selectedNodeIds[0]];
+      targetX = endInfo.centerX;
+      targetY = endInfo.centerY;
+      targetW = endInfo.width;
+      targetH = endInfo.height;
+      targetId = selectedNodeIds[0];
+    } else {
+      targetX = cursor.x * GRID_X;
+      targetY = cursor.y * GRID_Y;
+      targetW = NODE_WIDTH;
+      targetH = NODE_HEIGHT;
+      targetId = 'temp';
+    }
 
     // Fake end node for geometry calculation
-    const isSelf = drawingStartNode.x === cursor.x && drawingStartNode.y === cursor.y;
-    const endNode = isSelf ? startNode : { id: 'temp', centerX: targetX, centerY: targetY };
+    const endNode = { id: targetId, centerX: targetX, centerY: targetY, width: targetW, height: targetH };
 
     drawEdge(startNode, endNode, false, true);
   }
@@ -846,32 +927,58 @@ function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
   }
 }
 
-function drawNodeGroup(group, nodeMap) {
-  const ids = group.nodes;
-  let minX = Infinity, maxX = -Infinity;
-  let minY = Infinity, maxY = -Infinity;
-
-  let found = false;
-  ids.forEach(id => {
-    const node = nodeMap[id];
-    if (node) {
-      found = true;
-      const x = node.centerX;
-      const y = node.centerY;
-      minX = Math.min(minX, x - NODE_WIDTH / 2);
-      maxX = Math.max(maxX, x + NODE_WIDTH / 2);
-      minY = Math.min(minY, y - NODE_HEIGHT / 2);
-      maxY = Math.max(maxY, y + NODE_HEIGHT / 2);
-    }
+function buildNodeMap() {
+  const nodeMap = {};
+  // First pass: atomic nodes
+  nodes.filter(n => !n.children).forEach(n => {
+    nodeMap[n.id] = {
+      ...n,
+      centerX: n.x * GRID_X,
+      centerY: n.y * GRID_Y,
+      width: NODE_WIDTH,
+      height: NODE_HEIGHT
+    };
   });
 
-  if (!found) return;
+  // Second pass: group nodes (loop to handle possible nesting, though we added only 1 level for now)
+  let changed = true;
+  while (changed) {
+    changed = false;
+    nodes.filter(n => n.children).forEach(n => {
+      if (nodeMap[n.id]) return;
+      const children = n.children.map(id => nodeMap[id]).filter(Boolean);
+      if (children.length === n.children.length) {
+        // Calculate bounding box
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        children.forEach(c => {
+          minX = Math.min(minX, c.centerX - c.width / 2);
+          maxX = Math.max(maxX, c.centerX + c.width / 2);
+          minY = Math.min(minY, c.centerY - c.height / 2);
+          maxY = Math.max(maxY, c.centerY + c.height / 2);
+        });
+        const padding = 40;
+        nodeMap[n.id] = {
+          ...n,
+          centerX: (minX + maxX) / 2,
+          centerY: (minY + maxY) / 2,
+          width: (maxX - minX) + 2 * padding,
+          height: (maxY - minY) + 2 * padding
+        };
+        changed = true;
+      }
+    });
+  }
+  return nodeMap;
+}
 
-  const padding = 40;
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 4;
+function drawNodeGroup(group, nodeMap, isSelected, isHighlighted) {
+  const info = nodeMap[group.id];
+  if (!info) return;
+
+  ctx.strokeStyle = isSelected ? "#0000ff" : (isHighlighted ? "#ff0000" : "#000000");
+  ctx.lineWidth = isSelected || isHighlighted ? 8 : 4;
   ctx.setLineDash([20, 10]);
-  ctx.strokeRect(minX - padding, minY - padding, (maxX - minX) + 2 * padding, (maxY - minY) + 2 * padding);
+  ctx.strokeRect(info.centerX - info.width / 2, info.centerY - info.height / 2, info.width, info.height);
   ctx.setLineDash([]);
 }
 
@@ -882,8 +989,8 @@ function drawEdge(startNode, endNode, isHighlighted, isGhost = false, specialCol
     return;
   }
 
-  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, NODE_WIDTH, NODE_HEIGHT);
-  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, NODE_WIDTH, NODE_HEIGHT);
+  const startPt = getRectIntersection(endNode.centerX, endNode.centerY, startNode.centerX, startNode.centerY, startNode.width, startNode.height);
+  const endPt = getRectIntersection(startNode.centerX, startNode.centerY, endNode.centerX, endNode.centerY, endNode.width, endNode.height);
 
   const headLength = 40;
 

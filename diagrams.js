@@ -576,4 +576,19 @@ export const diagrams = [
       }
     ]
   },
+  {
+    "nodes": [
+      { "id": "n1", "text": "Task A", "x": 0, "y": 0 },
+      { "id": "n2", "text": "Task B", "x": 1, "y": 0 },
+      { "id": "group1", "children": ["n1", "n2"] },
+      { "id": "n3", "text": "Review", "x": 0.5, "y": 1 }
+    ],
+    "edges": [
+      { "id": "e1", "start": "group1", "end": "n3" }
+    ],
+    "narrative": [
+      { "utter": "We have a group of tasks.", "highlightedNodes": ["group1"] },
+      { "utter": "The whole group leads to a review.", "highlightedEdges": ["e1"] }
+    ]
+  }
 ];
