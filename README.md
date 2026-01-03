@@ -3,6 +3,24 @@
 - Design data structure for node group
 - select multiple nodes/edges for dialog
 
+# m2n
+
+- edit.html: Change the nodeGroups data structure to just be part of nodes
+```
+{
+    nodes: [
+        {
+            id: 'node-0',
+            'children': ['node-1', 'node-2'],
+        }
+    ]
+}
+```
+- This allows connecting edges to not just a node but a node group (i.e. a node with a children field)
+  - The edge should go to the border of the node group instead of the children node.
+- Allow selecting a node group if you click inside th rectangular border but not inside any of the children node.
+  - Then, using `a` as before will create an edge to/from the node group.
+- Support rendering nodeGroups with this new data structure and edges among them in edit.html and index.html
 
 # m2m
 - Support selecting multiple nodes/edges via the keyboard in edit.html

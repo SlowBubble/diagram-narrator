@@ -134,6 +134,10 @@ function handleInput(e) {
     const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
 
     if (isArrowKey) {
+      const oldX = cursor.x;
+      const oldY = cursor.y;
+      const oldNode = nodes.find(n => n.x === oldX && n.y === oldY);
+
       if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
       if (e.key === 'ArrowDown') cursor.y = cursor.y + 1;
       if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
@@ -141,17 +145,35 @@ function handleInput(e) {
 
       updateView();
 
-      if (!e.metaKey) {
+      const isMulti = e.metaKey || e.shiftKey;
+      if (!isMulti) {
         selectedEdgeId = null;
         selectedEdgeIds = [];
         selectedNodeIds = [];
         isNodeSelected = true;
       } else {
-        // Cmd + Arrow: add node to selection
+        // Multi-selection: ensure current node is selected if starting
+        if (oldNode && selectedNodeIds.length === 0) {
+          selectedNodeIds.push(oldNode.id);
+        }
+
+        // Add destination node to selection
         const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
         if (node && !selectedNodeIds.includes(node.id)) {
           selectedNodeIds.push(node.id);
         }
+
+        // Add edge between old and new if it exists
+        if (oldNode && node) {
+          const edge = edges.find(e =>
+            (e.start === oldNode.id && e.end === node.id) ||
+            (e.start === node.id && e.end === oldNode.id)
+          );
+          if (edge && !selectedEdgeIds.includes(edge.id)) {
+            selectedEdgeIds.push(edge.id);
+          }
+        }
+        isNodeSelected = true;
       }
     }
 
@@ -189,19 +211,27 @@ function handleInput(e) {
     }
 
     if (e.key === 'Backspace') {
-      if (selectedEdgeId) {
-        const edgeIndex = edges.findIndex(edge => edge.id === selectedEdgeId);
-        if (edgeIndex >= 0) {
-          const edge = edges[edgeIndex];
-          const startNode = nodes.find(n => n.id === edge.start);
-          if (startNode) {
-            cursor.x = startNode.x;
-            cursor.y = startNode.y;
-            updateView();
-          }
-          edges.splice(edgeIndex, 1);
-          selectedEdgeId = null;
-        }
+      if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0 || selectedEdgeId) {
+        const edgesToDelete = new Set(selectedEdgeIds);
+        if (selectedEdgeId) edgesToDelete.add(selectedEdgeId);
+
+        edges = edges.filter(e => !edgesToDelete.has(e.id));
+
+        selectedNodeIds.forEach(nodeId => {
+          nodes = nodes.filter(n => n.id !== nodeId);
+          edges = edges.filter(e => e.start !== nodeId && e.end !== nodeId);
+          if (drawingStartNode && drawingStartNode.id === nodeId) drawingStartNode = null;
+        });
+
+        // Clean up nodeGroups
+        nodeGroups = nodeGroups.map(group => ({
+          ...group,
+          nodes: group.nodes.filter(id => nodes.some(n => n.id === id))
+        })).filter(group => group.nodes.length > 1);
+
+        selectedNodeIds = [];
+        selectedEdgeIds = [];
+        selectedEdgeId = null;
       } else {
         const nodeIndex = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
         if (nodeIndex >= 0) {
@@ -211,6 +241,11 @@ function handleInput(e) {
           if (drawingStartNode && drawingStartNode.id === nodeId) {
             drawingStartNode = null;
           }
+          // Clean up nodeGroups
+          nodeGroups = nodeGroups.map(group => ({
+            ...group,
+            nodes: group.nodes.filter(id => id !== nodeId)
+          })).filter(group => group.nodes.length > 1);
         }
       }
     }
