@@ -1,7 +1,15 @@
 # wishlist
 - Save edit.html to offline storage, and then show them first in index.html
-- Design data structure for node group
-- select multiple nodes/edges for dialog
+- In index.html, when you press `Enter`, then navigate to the edit.html with the diagram from index.html passed through via a new query param that store the encoded JSON string.
+  - If the JSON does not have an diagramId field, then create an diagramId field.
+
+# m3a
+- In edit.html, add a diagramId field to the diagram JSON using the current date time string
+  - Also have a lastEdited field that is the date time in number form.
+  - Automatically save the JSON in localStorage whenever you make a change to the diagram, and update lastEdited using the diagramId as the key and the stringifid JSON as the value. But don't save the empty diagram; only save when something is added to it.
+  - `cmd+space` will delete the current diagram from local storage (add a confirm prompt), and then refresh edit.html to a new diagram
+- In index.html, first load all the diagrams from local storage (sorted by most to least recent lastEdited field)
+  - After that append the existing diagrams in diagrams.js.
 
 # m2n
 
