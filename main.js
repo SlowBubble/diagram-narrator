@@ -1,4 +1,34 @@
-import { diagrams } from './diagrams.js';
+import { diagrams as staticDiagrams } from './diagrams.js';
+
+// Load diagrams from localStorage and combine with static diagrams
+function loadDiagrams() {
+  const localDiagrams = [];
+
+  // Iterate through localStorage to find all diagrams
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    try {
+      const item = localStorage.getItem(key);
+      const parsed = JSON.parse(item);
+
+      // Check if this looks like a diagram (has diagramId and lastEdited)
+      if (parsed && parsed.diagramId && parsed.lastEdited !== undefined) {
+        localDiagrams.push(parsed);
+      }
+    } catch (e) {
+      // Skip items that aren't valid JSON or diagrams
+      continue;
+    }
+  }
+
+  // Sort by most recent lastEdited (descending)
+  localDiagrams.sort((a, b) => b.lastEdited - a.lastEdited);
+
+  // Combine: localStorage diagrams first, then static diagrams
+  return [...localDiagrams, ...staticDiagrams];
+}
+
+const diagrams = loadDiagrams();
 
 let currentDiagramIndex = 0;
 let currentNarrativeIndex = -1;

@@ -22,6 +22,8 @@ let selectedEdgeIds = []; // Multi-selection for edges
 let selectedNodeIds = []; // Multi-selection for nodes
 let selectedEdgeId = null; // Single edge selection (kept for backward compatibility/keyboard)
 let isNodeSelected = true;
+let diagramId = new Date().toISOString(); // Unique ID for this diagram
+let lastEdited = Date.now(); // Timestamp of last edit
 
 function getOrCreateNode(x, y) {
   let n = nodes.find(node => node.x === x && node.y === y);
@@ -60,6 +62,7 @@ function finishArrowDrawing() {
   };
   edges.push(newEdge);
   drawingStartNode = null;
+  saveDiagramToLocalStorage();
 }
 
 function drawSelfLoop(node, isHighlighted, w, h, isDashed = false, isGhost = false, specialColor = null) {
@@ -195,6 +198,7 @@ function handleInput(e) {
         }
         nodes.push({ id: `group-${idNum}`, children: [...selectedNodeIds] });
         selectedNodeIds = []; // Clear selection after grouping
+        saveDiagramToLocalStorage();
         render();
         return;
       }
@@ -256,6 +260,7 @@ function handleInput(e) {
         selectedNodeIds = [];
         selectedEdgeIds = [];
         selectedEdgeId = null;
+        saveDiagramToLocalStorage();
       } else {
         const nodeIndex = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
         if (nodeIndex >= 0) {
@@ -273,13 +278,22 @@ function handleInput(e) {
           });
           // Remove group nodes that have 1 or 0 children
           nodes = nodes.filter(n => !n.children || n.children.length > 1);
+          saveDiagramToLocalStorage();
         }
       }
     }
 
     if (e.code === 'Space') {
       e.preventDefault();
-      nextStep();
+      if (e.metaKey) {
+        // cmd+space: delete current diagram from localStorage
+        if (confirm('Delete this diagram from localStorage and start fresh?')) {
+          localStorage.removeItem(diagramId);
+          window.location.reload();
+        }
+      } else {
+        nextStep();
+      }
     }
 
     if (e.key === 'Escape') {
@@ -642,6 +656,7 @@ function saveNodeText() {
     // But since we are here, let's just do a clean pass on edges in render or just keep simple.
   }
 
+  saveDiagramToLocalStorage();
   cancelEditing();
 }
 
@@ -679,6 +694,7 @@ function saveNarrativeStep() {
       highlightedEdges: highlightedEdges
     });
   }
+  saveDiagramToLocalStorage();
   cancelNarrativeEditing();
 }
 
@@ -692,6 +708,8 @@ function cancelNarrativeEditing() {
 function showJson() {
   mode = 'view-json';
   const diagram = {
+    diagramId: diagramId,
+    lastEdited: lastEdited,
     nodes: nodes.map(n => {
       const node = { id: n.id };
       if (n.text !== undefined) node.text = n.text;
@@ -1070,6 +1088,30 @@ function getRectIntersection(x1, y1, x2, y2, w, h) {
     ix = x2 + (iy - y2) * (dx / dy);
   }
   return { x: ix, y: iy };
+}
+
+function saveDiagramToLocalStorage() {
+  // Don't save empty diagrams
+  if (nodes.length === 0 && edges.length === 0 && narrative.length === 0) {
+    return;
+  }
+
+  lastEdited = Date.now();
+  const diagram = {
+    diagramId: diagramId,
+    lastEdited: lastEdited,
+    nodes: nodes.map(n => {
+      const node = { id: n.id };
+      if (n.text !== undefined) node.text = n.text;
+      if (n.x !== undefined) node.x = n.x;
+      if (n.y !== undefined) node.y = n.y;
+      if (n.children) node.children = n.children;
+      return node;
+    }),
+    edges: edges,
+    narrative: narrative
+  };
+  localStorage.setItem(diagramId, JSON.stringify(diagram));
 }
 
 init();
