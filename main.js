@@ -150,6 +150,13 @@ function render() {
     nodeMap[node.id] = { ...node, centerX: x, centerY: y };
   });
 
+  // Draw Node Groups
+  if (diagram.nodeGroups) {
+    diagram.nodeGroups.forEach(group => {
+      drawNodeGroup(group, nodeMap, effectiveNodeWidth);
+    });
+  }
+
   // Draw Edges
   diagram.edges.forEach(edge => {
     const startNode = nodeMap[edge.start];
@@ -210,6 +217,35 @@ function drawNode(node, isHighlighted, width) {
   } else {
     ctx.fillText(text, centerX, centerY);
   }
+}
+
+function drawNodeGroup(group, nodeMap, nodeWidth) {
+  const ids = group.nodes;
+  let minX = Infinity, maxX = -Infinity;
+  let minY = Infinity, maxY = -Infinity;
+
+  let found = false;
+  ids.forEach(id => {
+    const node = nodeMap[id];
+    if (node) {
+      found = true;
+      const x = node.centerX;
+      const y = node.centerY;
+      minX = Math.min(minX, x - nodeWidth / 2);
+      maxX = Math.max(maxX, x + nodeWidth / 2);
+      minY = Math.min(minY, y - NODE_HEIGHT / 2);
+      maxY = Math.max(maxY, y + NODE_HEIGHT / 2);
+    }
+  });
+
+  if (!found) return;
+
+  const padding = 40;
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 4;
+  ctx.setLineDash([20, 10]);
+  ctx.strokeRect(minX - padding, minY - padding, (maxX - minX) + 2 * padding, (maxY - minY) + 2 * padding);
+  ctx.setLineDash([]);
 }
 
 function drawSelfLoop(node, isHighlighted, w, h, isDashed = false) {

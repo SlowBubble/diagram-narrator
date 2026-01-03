@@ -15,6 +15,7 @@ let nodes = []; // Array of { id, text, x, y }
 let edges = []; // Array of { id, start, end }
 let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
+let nodeGroups = []; // Array of { nodes: [id1, id2, ...] }
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 let currentNarrativeIndex = -1; // For playback
 let hoveredEdgeId = null;
@@ -156,6 +157,13 @@ function handleInput(e) {
 
     if (e.key === 'Enter' && !e.metaKey) {
       e.preventDefault();
+      if (selectedNodeIds.length > 1) {
+        // Create nodeGroup
+        nodeGroups.push({ nodes: [...selectedNodeIds] });
+        selectedNodeIds = []; // Clear selection after grouping
+        render();
+        return;
+      }
       if (drawingStartNode) {
         finishArrowDrawing();
       }
@@ -587,6 +595,7 @@ function showJson() {
       y: n.y
     })),
     edges: edges,
+    nodeGroups: nodeGroups,
     narrative: narrative
   };
   jsonOutput.value = JSON.stringify(diagram, null, 2);
@@ -684,6 +693,11 @@ function render() {
   if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
     narrativeStep = narrative[currentNarrativeIndex];
   }
+
+  // Draw Node Groups
+  nodeGroups.forEach(group => {
+    drawNodeGroup(group, nodeMap);
+  });
 
   // Draw Edges
   edges.forEach(edge => {
@@ -795,6 +809,35 @@ function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
   } else {
     ctx.fillText(node.text, cx, cy);
   }
+}
+
+function drawNodeGroup(group, nodeMap) {
+  const ids = group.nodes;
+  let minX = Infinity, maxX = -Infinity;
+  let minY = Infinity, maxY = -Infinity;
+
+  let found = false;
+  ids.forEach(id => {
+    const node = nodeMap[id];
+    if (node) {
+      found = true;
+      const x = node.centerX;
+      const y = node.centerY;
+      minX = Math.min(minX, x - NODE_WIDTH / 2);
+      maxX = Math.max(maxX, x + NODE_WIDTH / 2);
+      minY = Math.min(minY, y - NODE_HEIGHT / 2);
+      maxY = Math.max(maxY, y + NODE_HEIGHT / 2);
+    }
+  });
+
+  if (!found) return;
+
+  const padding = 40;
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 4;
+  ctx.setLineDash([20, 10]);
+  ctx.strokeRect(minX - padding, minY - padding, (maxX - minX) + 2 * padding, (maxY - minY) + 2 * padding);
+  ctx.setLineDash([]);
 }
 
 // Helper functions for Arrow Drawing
