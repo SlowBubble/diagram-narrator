@@ -167,36 +167,10 @@ function render() {
   // Add padding (e.g. 40px)
   const effectiveNodeWidth = Math.max(NODE_WIDTH, maxTextWidth + 40);
 
-  // Dynamic Centering Calculation
-  let minX = Infinity, maxX = -Infinity;
-  let minY = Infinity, maxY = -Infinity;
-
-  diagram.nodes.forEach(node => {
-    minX = Math.min(minX, node.x);
-    maxX = Math.max(maxX, node.x);
-    minY = Math.min(minY, node.y);
-    maxY = Math.max(maxY, node.y);
-  });
-
-  const canvasCenterX = canvas.width / 2;
-  const canvasCenterY = canvas.height / 2;
-
-  const diagramCenterX = (minX + maxX) * GRID_X / 2;
-  const diagramCenterY = (minY + maxY) * effectiveGridY / 2;
-
-  const totalWidth = (maxX - minX) * GRID_X + effectiveNodeWidth;
-  const totalHeight = (maxY - minY) * effectiveGridY + NODE_HEIGHT;
-
-  const scale = Math.min(canvas.width / totalWidth, canvas.height / totalHeight, 1) * 0.9;
-
-  ctx.save();
-  ctx.translate(canvasCenterX, canvasCenterY);
-  ctx.scale(scale, scale);
-  ctx.translate(-diagramCenterX, -diagramCenterY);
-
+  // First pass: Build node context map (coords and sizes)
   const nodeMap = {};
 
-  // First pass: atomic nodes
+  // Atomic nodes
   diagram.nodes.filter(n => !n.children).forEach(node => {
     const x = node.x * GRID_X;
     const y = node.y * effectiveGridY;
@@ -217,25 +191,57 @@ function render() {
       if (nodeMap[n.id]) return;
       const children = n.children.map(id => nodeMap[id]).filter(Boolean);
       if (children.length === n.children.length) {
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        let minCX = Infinity, maxCX = -Infinity, minCY = Infinity, maxCY = -Infinity;
         children.forEach(c => {
-          minX = Math.min(minX, c.centerX - c.width / 2);
-          maxX = Math.max(maxX, c.centerX + c.width / 2);
-          minY = Math.min(minY, c.centerY - c.height / 2);
-          maxY = Math.max(maxY, c.centerY + c.height / 2);
+          minCX = Math.min(minCX, c.centerX - c.width / 2);
+          maxCX = Math.max(maxCX, c.centerX + c.width / 2);
+          minCY = Math.min(minCY, c.centerY - c.height / 2);
+          maxCY = Math.max(maxCY, c.centerY + c.height / 2);
         });
         const padding = 40;
         nodeMap[n.id] = {
           ...n,
-          centerX: (minX + maxX) / 2,
-          centerY: (minY + maxY) / 2,
-          width: (maxX - minX) + 2 * padding,
-          height: (maxY - minY) + 2 * padding
+          centerX: (minCX + maxCX) / 2,
+          centerY: (minCY + maxCY) / 2,
+          width: (maxCX - minCX) + 2 * padding,
+          height: (maxCY - minCY) + 2 * padding
         };
         changed = true;
       }
     });
   }
+
+  // Calculate true bounding box of ALL rendered elements
+  let minCanvasX = Infinity, maxCanvasX = -Infinity;
+  let minCanvasY = Infinity, maxCanvasY = -Infinity;
+
+  Object.values(nodeMap).forEach(node => {
+    minCanvasX = Math.min(minCanvasX, node.centerX - node.width / 2);
+    maxCanvasX = Math.max(maxCanvasX, node.centerX + node.width / 2);
+    minCanvasY = Math.min(minCanvasY, node.centerY - node.height / 2);
+    maxCanvasY = Math.max(maxCanvasY, node.centerY + node.height / 2);
+  });
+
+  // If no nodes, default to canvas size
+  if (minCanvasX === Infinity) {
+    minCanvasX = 0; maxCanvasX = canvas.width;
+    minCanvasY = 0; maxCanvasY = canvas.height;
+  }
+
+  const totalWidth = maxCanvasX - minCanvasX;
+  const totalHeight = maxCanvasY - minCanvasY;
+  const diagramCenterX = (minCanvasX + maxCanvasX) / 2;
+  const diagramCenterY = (minCanvasY + maxCanvasY) / 2;
+
+  const canvasCenterX = canvas.width / 2;
+  const canvasCenterY = canvas.height / 2;
+
+  const scale = Math.min(canvas.width / totalWidth, canvas.height / totalHeight, 1) * 0.9;
+
+  ctx.save();
+  ctx.translate(canvasCenterX, canvasCenterY);
+  ctx.scale(scale, scale);
+  ctx.translate(-diagramCenterX, -diagramCenterY);
 
   // Draw Node Groups
   diagram.nodes.filter(n => n.children).forEach(group => {
