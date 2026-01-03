@@ -29,6 +29,7 @@ function loadDiagrams() {
 }
 
 const diagrams = loadDiagrams();
+console.log('Loaded diagrams:', diagrams);
 
 let currentDiagramIndex = 0;
 let currentNarrativeIndex = -1;
@@ -115,6 +116,9 @@ function handleInput(e) {
 }
 
 function render() {
+  if (currentDiagramIndex < diagrams.length) {
+    console.log(`Rendering diagram index ${currentDiagramIndex}:`, diagrams[currentDiagramIndex].diagramId);
+  }
   // Clear canvas
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height); // White background
@@ -151,11 +155,13 @@ function render() {
   ctx.font = `bold ${FONT_SIZE}px Inter, sans-serif`; // Use bold for max width calculation
   let maxTextWidth = 0;
   diagram.nodes.forEach(node => {
-    const lines = node.text.split('\n');
-    lines.forEach(line => {
-      const width = ctx.measureText(line).width;
-      if (width > maxTextWidth) maxTextWidth = width;
-    });
+    if (node.text) {
+      const lines = node.text.split('\n');
+      lines.forEach(line => {
+        const width = ctx.measureText(line).width;
+        if (width > maxTextWidth) maxTextWidth = width;
+      });
+    }
   });
 
   // Add padding (e.g. 40px)
@@ -268,7 +274,7 @@ function render() {
 }
 
 function drawNode(node, isHighlighted) {
-  if (node.children) return; // Atomic nodes only
+  if (!node || node.children) return; // Atomic nodes only
   const { centerX, centerY, text, width } = node;
   const w = width;
   const h = NODE_HEIGHT;
@@ -289,7 +295,7 @@ function drawNode(node, isHighlighted) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  const lines = text.split('\n');
+  const lines = (text || "").split('\n');
   if (lines.length > 1) {
     const lineHeight = FONT_SIZE * 1.2;
     const totalHeight = lineHeight * lines.length;
@@ -298,7 +304,7 @@ function drawNode(node, isHighlighted) {
     lines.forEach((line, i) => {
       ctx.fillText(line, centerX, startY + (i * lineHeight));
     });
-  } else {
+  } else if (text) {
     ctx.fillText(text, centerX, centerY);
   }
 }

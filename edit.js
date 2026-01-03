@@ -946,7 +946,7 @@ function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  const lines = node.text.split('\n');
+  const lines = (node.text || "").split('\n');
   if (lines.length > 1) {
     const lineHeight = FONT_SIZE * 1.2;
     const totalHeight = lineHeight * lines.length;
@@ -955,7 +955,7 @@ function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
     lines.forEach((line, i) => {
       ctx.fillText(line, cx, startY + (i * lineHeight));
     });
-  } else {
+  } else if (node.text) {
     ctx.fillText(node.text, cx, cy);
   }
 }
