@@ -17,6 +17,9 @@ let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 let currentNarrativeIndex = -1; // For playback
+let hoveredEdgeId = null;
+let selectedEdgeId = null;
+let isNodeSelected = true;
 
 function getOrCreateNode(x, y) {
   let n = nodes.find(node => node.x === x && node.y === y);
@@ -48,15 +51,18 @@ function finishArrowDrawing() {
   drawingStartNode = null;
 }
 
-function drawSelfLoop(node, isHighlighted, w, h, isDashed = false, isGhost = false) {
+function drawSelfLoop(node, isHighlighted, w, h, isDashed = false, isGhost = false, specialColor = null) {
   const gap = 100; // Reach halfway to next node
   const cx = node.centerX;
   const cy = node.centerY;
   const x = cx - w / 2;
   const y = cy - h / 2;
 
-  ctx.strokeStyle = isHighlighted ? "#ff4444" : "#000000";
-  ctx.lineWidth = isHighlighted ? 12 : 8;
+  let strokeColor = isHighlighted ? "#ff4444" : "#000000";
+  if (specialColor) strokeColor = specialColor;
+
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = isHighlighted || specialColor ? 12 : 8;
 
   if (isGhost) {
     ctx.save();
@@ -88,7 +94,7 @@ function drawSelfLoop(node, isHighlighted, w, h, isDashed = false, isGhost = fal
 
   ctx.setLineDash([]);
 
-  drawArrowhead({ x: x + w + 1, y: y_end }, { x: x + w, y: y_end }, isHighlighted);
+  drawArrowhead({ x: x + w + 1, y: y_end }, { x: x + w, y: y_end }, isHighlighted, specialColor);
 
   if (isGhost) {
     ctx.restore();
@@ -110,6 +116,7 @@ function init() {
   document.addEventListener('keydown', handleInput);
   canvas.addEventListener('click', handleCanvasClick);
   canvas.addEventListener('dblclick', handleCanvasDblClick);
+  canvas.addEventListener('mousemove', handleCanvasMouseMove);
   handleResize();
 }
 
@@ -127,6 +134,8 @@ function handleInput(e) {
     if (e.key === 'ArrowRight') cursor.x = cursor.x + 1;
 
     updateView();
+    selectedEdgeId = null; // Clear edge selection when moving via keyboard
+    isNodeSelected = true; // Reactivate node selection on keyboard movement
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -155,15 +164,31 @@ function handleInput(e) {
     }
 
     if (e.key === 'Backspace') {
-      const nodeIndex = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
-      if (nodeIndex >= 0) {
-        const nodeId = nodes[nodeIndex].id;
-        nodes.splice(nodeIndex, 1);
-        // Remove connected edges
-        edges = edges.filter(edge => edge.start !== nodeId && edge.end !== nodeId);
-        // Also clear drawingStartNode if it was the deleted node
-        if (drawingStartNode && drawingStartNode.id === nodeId) {
-          drawingStartNode = null;
+      if (selectedEdgeId) {
+        const edgeIndex = edges.findIndex(edge => edge.id === selectedEdgeId);
+        if (edgeIndex >= 0) {
+          const edge = edges[edgeIndex];
+          // Find a nearby node to move to
+          const startNode = nodes.find(n => n.id === edge.start);
+          if (startNode) {
+            cursor.x = startNode.x;
+            cursor.y = startNode.y;
+            updateView();
+          }
+          edges.splice(edgeIndex, 1);
+          selectedEdgeId = null;
+        }
+      } else {
+        const nodeIndex = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
+        if (nodeIndex >= 0) {
+          const nodeId = nodes[nodeIndex].id;
+          nodes.splice(nodeIndex, 1);
+          // Remove connected edges
+          edges = edges.filter(edge => edge.start !== nodeId && edge.end !== nodeId);
+          // Also clear drawingStartNode if it was the deleted node
+          if (drawingStartNode && drawingStartNode.id === nodeId) {
+            drawingStartNode = null;
+          }
         }
       }
     }
@@ -199,13 +224,122 @@ function handleCanvasClick(e) {
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
 
+  if (hoveredEdgeId) {
+    selectedEdgeId = hoveredEdgeId;
+    if (!e.metaKey && !e.ctrlKey) {
+      isNodeSelected = false;
+    }
+    render();
+    return;
+  }
+
   const coords = getGridCoords(mouseX, mouseY);
   if (coords.isOnNode && coords.x >= 0 && coords.y >= 0) {
     cursor.x = coords.x;
     cursor.y = coords.y;
+    selectedEdgeId = null; // Clear edge selection when node is clicked
+    isNodeSelected = true;
     updateView();
     render();
   }
+}
+
+function handleCanvasMouseMove(e) {
+  if (mode !== 'navigate') return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const gridPoint = getGridPoint(mouseX, mouseY);
+
+  let closestEdgeId = null;
+  let minDistance = 50; // Threshold for edge selection
+
+  edges.forEach(edge => {
+    const node1 = nodes.find(n => n.id === edge.start);
+    const node2 = nodes.find(n => n.id === edge.end);
+    if (!node1 || !node2) return;
+
+    let dist;
+    if (node1.id === node2.id) {
+      // Self loop distance
+      dist = getDistanceToSelfLoop(gridPoint, node1);
+    } else {
+      // Straight line distance
+      dist = getDistanceToSegment(gridPoint,
+        { x: node1.x * GRID_X, y: node1.y * GRID_Y },
+        { x: node2.x * GRID_X, y: node2.y * GRID_Y }
+      );
+    }
+
+    if (dist < minDistance) {
+      minDistance = dist;
+      closestEdgeId = edge.id;
+    }
+  });
+
+  if (hoveredEdgeId !== closestEdgeId) {
+    hoveredEdgeId = closestEdgeId;
+    render();
+  }
+}
+
+function getDistanceToSegment(p, a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const lengthSq = dx * dx + dy * dy;
+  if (lengthSq === 0) return Math.sqrt((p.x - a.x) ** 2 + (p.y - a.y) ** 2);
+
+  let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq;
+  t = Math.max(0, Math.min(1, t));
+
+  const projX = a.x + t * dx;
+  const projY = a.y + t * dy;
+
+  return Math.sqrt((p.x - projX) ** 2 + (p.y - projY) ** 2);
+}
+
+function getDistanceToSelfLoop(p, node) {
+  const cx = node.x * GRID_X;
+  const cy = node.y * GRID_Y;
+  const w = NODE_WIDTH;
+  const h = NODE_HEIGHT;
+  const gap = 100;
+
+  const x = cx - w / 2;
+  const y = cy - h / 2;
+  const x_start = x + w * 0.75;
+  const y_start = y;
+
+  const points = [
+    { x: x_start, y: y_start },
+    { x: x_start, y: y_start - gap },
+    { x: x + w + gap, y: y_start - gap },
+    { x: x + w + gap, y: y + h * 0.25 },
+    { x: x + w, y: y + h * 0.25 }
+  ];
+
+  let minD = Infinity;
+  for (let i = 0; i < points.length - 1; i++) {
+    minD = Math.min(minD, getDistanceToSegment(p, points[i], points[i + 1]));
+  }
+  return minD;
+}
+
+function getGridPoint(mouseX, mouseY) {
+  const totalWidth = (3) * GRID_X + NODE_WIDTH + 100;
+  const totalHeight = (3) * GRID_Y + NODE_HEIGHT + 100;
+  const scale = Math.min(canvas.width / totalWidth, canvas.height / totalHeight, 1) * 0.9;
+  const canvasCenterX = canvas.width / 2;
+  const canvasCenterY = canvas.height / 2;
+  const gridCenterX = (viewX + 1.5) * GRID_X;
+  const gridCenterY = (viewY + 1.5) * GRID_Y;
+
+  return {
+    x: (mouseX - canvasCenterX) / scale + gridCenterX,
+    y: (mouseY - canvasCenterY) / scale + gridCenterY
+  };
 }
 
 function handleCanvasDblClick(e) {
@@ -475,7 +609,15 @@ function render() {
       if (narrativeStep && narrativeStep.highlightedEdges && narrativeStep.highlightedEdges.includes(edge.id)) {
         isHighlighted = true;
       }
-      drawEdge(startNode, endNode, isHighlighted);
+
+      let specialColor = null;
+      if (edge.id === selectedEdgeId) {
+        specialColor = "#0000ff"; // Blue for selected
+      } else if (edge.id === hoveredEdgeId) {
+        specialColor = "#ffaa00"; // Orange for hover
+      }
+
+      drawEdge(startNode, endNode, isHighlighted, false, specialColor);
     }
   });
 
@@ -500,7 +642,7 @@ function render() {
       const centerY = y * GRID_Y;
 
       const node = nodes.find(n => n.x === x && n.y === y);
-      const isCursor = (x === cursor.x && y === cursor.y);
+      const isCursor = isNodeSelected && (x === cursor.x && y === cursor.y);
 
       if (node) {
         let isHighlighted = false;
@@ -566,9 +708,9 @@ function drawNode(node, cx, cy, isCursor, isHighlighted) {
 }
 
 // Helper functions for Arrow Drawing
-function drawEdge(startNode, endNode, isHighlighted, isGhost = false) {
+function drawEdge(startNode, endNode, isHighlighted, isGhost = false, specialColor = null) {
   if (startNode.id === endNode.id) {
-    drawSelfLoop(startNode, isHighlighted, NODE_WIDTH, NODE_HEIGHT, false, isGhost);
+    drawSelfLoop(startNode, isHighlighted, NODE_WIDTH, NODE_HEIGHT, false, isGhost, specialColor);
     return;
   }
 
@@ -589,8 +731,11 @@ function drawEdge(startNode, endNode, isHighlighted, isGhost = false) {
   const lineEndX = startPt.x + Math.cos(angle) * lineLen;
   const lineEndY = startPt.y + Math.sin(angle) * lineLen;
 
-  ctx.strokeStyle = isHighlighted ? "#ff4444" : "#000000";
-  ctx.lineWidth = isHighlighted ? 12 : 8;
+  let strokeColor = isHighlighted ? "#ff4444" : "#000000";
+  if (specialColor) strokeColor = specialColor;
+
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = isHighlighted || specialColor ? 12 : 8;
 
   if (isGhost) {
     ctx.save();
@@ -602,20 +747,23 @@ function drawEdge(startNode, endNode, isHighlighted, isGhost = false) {
   ctx.lineTo(lineEndX, lineEndY);
   ctx.stroke();
 
-  drawArrowhead(startPt, endPt, isHighlighted);
+  drawArrowhead(startPt, endPt, isHighlighted, specialColor);
 
   if (isGhost) {
     ctx.restore();
   }
 }
 
-function drawArrowhead(fromPt, toPt, isHighlighted) {
+function drawArrowhead(fromPt, toPt, isHighlighted, specialColor = null) {
   const headLength = 40;
   const dx = toPt.x - fromPt.x;
   const dy = toPt.y - fromPt.y;
   const angle = Math.atan2(dy, dx);
 
-  ctx.fillStyle = isHighlighted ? "#ff4444" : "#000000";
+  let fillColor = isHighlighted ? "#ff4444" : "#000000";
+  if (specialColor) fillColor = specialColor;
+
+  ctx.fillStyle = fillColor;
 
   ctx.beginPath();
   ctx.moveTo(toPt.x, toPt.y);

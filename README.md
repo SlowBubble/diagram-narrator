@@ -3,8 +3,15 @@
 - Design data structure for node group
 - select multiple nodes/edges for dialog
 
+# m2l
+- Support selecting multiple nodes/edges via the keyboard in edit.html
+  - When you press 'shift' while pressing arrow keys, then add the destination node to the selection.
+
 # m2k
-- Support selecting multiple nodes/edges in edit.html
+- Support selecting multiple nodes/edges via the mouse in edit.html
+  - When you click on a node/edge while holding cmd, then add it to the selection.
+- When multiple things are selected while you press `shift+enter` to create a dialog, you should add all those things to the dialog's highlighted nodes/edges when creating the dialog..
+- When
 
 # m2j
 - support selecting an edge in edit.html
