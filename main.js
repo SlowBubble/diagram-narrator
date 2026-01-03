@@ -81,6 +81,14 @@ function syncURL() {
 function handleInput(e) {
   if (e.code === 'Space') {
     nextStep();
+  } else if (e.key === 'v') {
+    // Switch to edit.html with current diagram ID
+    if (currentDiagramIndex < diagrams.length) {
+      const diagram = diagrams[currentDiagramIndex];
+      if (diagram.diagramId) {
+        window.location.href = `edit.html?id=${diagram.diagramId}`;
+      }
+    }
   } else if (e.code === 'ArrowLeft') {
     if (currentDiagramIndex > 0) {
       currentDiagramIndex--;

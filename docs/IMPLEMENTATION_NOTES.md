@@ -48,3 +48,26 @@
 - `http://localhost:8000/index.html?id=red-line-stops` - View the Red Line stops diagram
 - `http://localhost:8000/index.html?id=learn-struggle-challenge` - View the first diagram
 - `http://localhost:8000/edit.html?id=2026-01-03T16:00:00.000Z` - Edit a diagram saved at that timestamp
+
+## Keyboard Shortcuts
+
+### Common Shortcuts
+- **`v`** - Switch between view mode (index.html) and edit mode (edit.html) while preserving the current diagram ID
+
+### index.html (View Mode)
+- **Space** - Advance to next narrative step
+- **Left Arrow** - Go to previous diagram
+- **Right Arrow** - Go to next diagram
+- **`v`** - Switch to edit mode for current diagram
+
+### edit.html (Edit Mode)
+- **Arrow Keys** - Move cursor between nodes
+- **Enter** - Edit node text (or create node group if multiple nodes selected)
+- **`a`** - Start/end arrow drawing
+- **`x`** - View diagram JSON
+- **Cmd+Enter** - Add narrative step
+- **Backspace** - Delete node or edge
+- **Space** - Play narrative
+- **Cmd+Space** - Delete diagram from localStorage
+- **Escape** - Return to start of narration
+- **`v`** - Switch to view mode for current diagram

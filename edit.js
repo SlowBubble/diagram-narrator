@@ -242,6 +242,14 @@ function handleInput(e) {
     }
 
     if (e.key === 'Backspace') {
+      if (e.metaKey) {
+        e.preventDefault();
+        if (confirm('Delete this diagram from localStorage and start fresh?')) {
+          localStorage.removeItem(diagramId);
+          window.location.reload();
+        }
+        return;
+      }
       if (selectedNodeIds.length > 0 || selectedEdgeIds.length > 0 || selectedEdgeId) {
         const edgesToDelete = new Set(selectedEdgeIds);
         if (selectedEdgeId) edgesToDelete.add(selectedEdgeId);
@@ -292,15 +300,7 @@ function handleInput(e) {
 
     if (e.code === 'Space') {
       e.preventDefault();
-      if (e.metaKey) {
-        // cmd+space: delete current diagram from localStorage
-        if (confirm('Delete this diagram from localStorage and start fresh?')) {
-          localStorage.removeItem(diagramId);
-          window.location.reload();
-        }
-      } else {
-        nextStep();
-      }
+      nextStep();
     }
 
     if (e.key === 'Escape') {
@@ -308,6 +308,13 @@ function handleInput(e) {
       updateNarrationBanner();
       speak("");
       render();
+    }
+
+    if (e.key === 'v') {
+      // Switch to index.html with current diagram ID
+      if (diagramId) {
+        window.location.href = `index.html?id=${diagramId}`;
+      }
     }
 
     render();
