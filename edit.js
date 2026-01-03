@@ -434,13 +434,14 @@ function handleCanvasMouseMove(e) {
   const mouseY = e.clientY - rect.top;
 
   const gridPoint = getGridPoint(mouseX, mouseY);
+  const nodeMap = buildNodeMap();
 
   let closestEdgeId = null;
   let minDistance = 50; // Threshold for edge selection
 
   edges.forEach(edge => {
-    const node1 = nodes.find(n => n.id === edge.start);
-    const node2 = nodes.find(n => n.id === edge.end);
+    const node1 = nodeMap[edge.start];
+    const node2 = nodeMap[edge.end];
     if (!node1 || !node2) return;
 
     let dist;
@@ -450,8 +451,8 @@ function handleCanvasMouseMove(e) {
     } else {
       // Straight line distance
       dist = getDistanceToSegment(gridPoint,
-        { x: node1.x * GRID_X, y: node1.y * GRID_Y },
-        { x: node2.x * GRID_X, y: node2.y * GRID_Y }
+        { x: node1.centerX, y: node1.centerY },
+        { x: node2.centerX, y: node2.centerY }
       );
     }
 
@@ -483,10 +484,10 @@ function getDistanceToSegment(p, a, b) {
 }
 
 function getDistanceToSelfLoop(p, node) {
-  const cx = node.x * GRID_X;
-  const cy = node.y * GRID_Y;
-  const w = NODE_WIDTH;
-  const h = NODE_HEIGHT;
+  const cx = node.centerX;
+  const cy = node.centerY;
+  const w = node.width;
+  const h = node.height;
   const gap = 100;
 
   const x = cx - w / 2;

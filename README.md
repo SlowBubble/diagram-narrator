@@ -3,6 +3,10 @@
 - In index.html, when you press `Enter`, then navigate to the edit.html with the diagram from index.html passed through via a new query param that store the encoded JSON string.
   - If the JSON does not have an diagramId field, then create an diagramId field.
 
+# m3b
+- In index.html, when iterating through diagrams in local storage, use id=diagramId instead of diagram= 
+- And in edit.html, allow accessing an existing diagram via id=diagramId also.
+
 # m3a
 - In edit.html, add a diagramId field to the diagram JSON using the current date time string
   - Also have a lastEdited field that is the date time in number form.
