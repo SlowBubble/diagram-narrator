@@ -18,7 +18,9 @@ let drawingStartNode = null;
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 let currentNarrativeIndex = -1; // For playback
 let hoveredEdgeId = null;
-let selectedEdgeId = null;
+let selectedEdgeIds = []; // Multi-selection for edges
+let selectedNodeIds = []; // Multi-selection for nodes
+let selectedEdgeId = null; // Single edge selection (kept for backward compatibility/keyboard)
 let isNodeSelected = true;
 
 function getOrCreateNode(x, y) {
@@ -128,14 +130,29 @@ function handleResize() {
 
 function handleInput(e) {
   if (mode === 'navigate') {
-    if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
-    if (e.key === 'ArrowDown') cursor.y = cursor.y + 1;
-    if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
-    if (e.key === 'ArrowRight') cursor.x = cursor.x + 1;
+    const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
 
-    updateView();
-    selectedEdgeId = null; // Clear edge selection when moving via keyboard
-    isNodeSelected = true; // Reactivate node selection on keyboard movement
+    if (isArrowKey) {
+      if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
+      if (e.key === 'ArrowDown') cursor.y = cursor.y + 1;
+      if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
+      if (e.key === 'ArrowRight') cursor.x = cursor.x + 1;
+
+      updateView();
+
+      if (!e.shiftKey) {
+        selectedEdgeId = null;
+        selectedEdgeIds = [];
+        selectedNodeIds = [];
+        isNodeSelected = true;
+      } else {
+        // Shift + Arrow: add node to selection
+        const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+        if (node && !selectedNodeIds.includes(node.id)) {
+          selectedNodeIds.push(node.id);
+        }
+      }
+    }
 
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -168,7 +185,6 @@ function handleInput(e) {
         const edgeIndex = edges.findIndex(edge => edge.id === selectedEdgeId);
         if (edgeIndex >= 0) {
           const edge = edges[edgeIndex];
-          // Find a nearby node to move to
           const startNode = nodes.find(n => n.id === edge.start);
           if (startNode) {
             cursor.x = startNode.x;
@@ -183,9 +199,7 @@ function handleInput(e) {
         if (nodeIndex >= 0) {
           const nodeId = nodes[nodeIndex].id;
           nodes.splice(nodeIndex, 1);
-          // Remove connected edges
           edges = edges.filter(edge => edge.start !== nodeId && edge.end !== nodeId);
-          // Also clear drawingStartNode if it was the deleted node
           if (drawingStartNode && drawingStartNode.id === nodeId) {
             drawingStartNode = null;
           }
@@ -223,10 +237,24 @@ function handleCanvasClick(e) {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
+  const isMulti = e.metaKey || e.ctrlKey;
+
+  const currentCursorNode = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
 
   if (hoveredEdgeId) {
-    selectedEdgeId = hoveredEdgeId;
-    if (!e.metaKey && !e.ctrlKey) {
+    if (isMulti) {
+      if (selectedEdgeIds.length === 0 && selectedNodeIds.length === 0 && currentCursorNode) {
+        selectedNodeIds.push(currentCursorNode.id);
+      }
+      if (selectedEdgeIds.includes(hoveredEdgeId)) {
+        selectedEdgeIds = selectedEdgeIds.filter(id => id !== hoveredEdgeId);
+      } else {
+        selectedEdgeIds.push(hoveredEdgeId);
+      }
+    } else {
+      selectedEdgeIds = [hoveredEdgeId];
+      selectedNodeIds = [];
+      selectedEdgeId = hoveredEdgeId;
       isNodeSelected = false;
     }
     render();
@@ -235,11 +263,39 @@ function handleCanvasClick(e) {
 
   const coords = getGridCoords(mouseX, mouseY);
   if (coords.isOnNode && coords.x >= 0 && coords.y >= 0) {
+    const node = nodes.find(n => n.x === coords.x && n.y === coords.y);
+
+    if (isMulti && selectedNodeIds.length === 0 && selectedEdgeIds.length === 0) {
+      if (currentCursorNode && (!node || currentCursorNode.id !== node.id)) {
+        selectedNodeIds.push(currentCursorNode.id);
+      }
+    }
+
     cursor.x = coords.x;
     cursor.y = coords.y;
-    selectedEdgeId = null; // Clear edge selection when node is clicked
     isNodeSelected = true;
+    selectedEdgeId = null;
+
+    if (isMulti) {
+      if (node) {
+        if (selectedNodeIds.includes(node.id)) {
+          selectedNodeIds = selectedNodeIds.filter(id => id !== node.id);
+        } else {
+          selectedNodeIds.push(node.id);
+        }
+      }
+    } else {
+      selectedNodeIds = node ? [node.id] : [];
+      selectedEdgeIds = [];
+    }
     updateView();
+    render();
+  } else if (!isMulti) {
+    // Clicked empty space
+    selectedNodeIds = [];
+    selectedEdgeIds = [];
+    selectedEdgeId = null;
+    isNodeSelected = true;
     render();
   }
 }
@@ -473,13 +529,21 @@ function startNarrativeEditing() {
 function saveNarrativeStep() {
   const text = narrativeTextArea.value.trim();
   if (text) {
-    const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
-    const highlightedNodes = node ? [node.id] : [];
+    let highlightedNodes = [...selectedNodeIds];
+    let highlightedEdges = [...selectedEdgeIds];
+
+    // If nothing is selected, default to the node at the cursor if it exists
+    if (highlightedNodes.length === 0 && highlightedEdges.length === 0) {
+      const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+      if (node) {
+        highlightedNodes.push(node.id);
+      }
+    }
 
     narrative.push({
       utter: text,
       highlightedNodes: highlightedNodes,
-      highlightedEdges: []
+      highlightedEdges: highlightedEdges
     });
   }
   cancelNarrativeEditing();
@@ -611,7 +675,7 @@ function render() {
       }
 
       let specialColor = null;
-      if (edge.id === selectedEdgeId) {
+      if (selectedEdgeIds.includes(edge.id) || edge.id === selectedEdgeId) {
         specialColor = "#0000ff"; // Blue for selected
       } else if (edge.id === hoveredEdgeId) {
         specialColor = "#ffaa00"; // Orange for hover
@@ -649,7 +713,8 @@ function render() {
         if (narrativeStep && narrativeStep.highlightedNodes && narrativeStep.highlightedNodes.includes(node.id)) {
           isHighlighted = true;
         }
-        drawNode(node, centerX, centerY, isCursor, isHighlighted);
+        let isSelected = selectedNodeIds.includes(node.id);
+        drawNode(node, centerX, centerY, isCursor, isHighlighted, isSelected);
       } else {
         drawPlaceholder(centerX, centerY, isCursor);
       }
@@ -673,7 +738,7 @@ function drawPlaceholder(cx, cy, isCursor) {
   ctx.stroke();
 }
 
-function drawNode(node, cx, cy, isCursor, isHighlighted) {
+function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
   const w = NODE_WIDTH;
   const h = NODE_HEIGHT;
   const x = cx - w / 2;
@@ -682,7 +747,11 @@ function drawNode(node, cx, cy, isCursor, isHighlighted) {
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(x, y, w, h);
 
-  if (isCursor) {
+  if (isSelected) {
+    ctx.strokeStyle = "#0000ff";
+    ctx.lineWidth = 12;
+    ctx.strokeRect(x, y, w, h);
+  } else if (isCursor) {
     ctx.strokeStyle = "#0000ff";
     ctx.lineWidth = 4;
     ctx.strokeRect(x, y, w, h);

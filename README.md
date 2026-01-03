@@ -3,15 +3,29 @@
 - Design data structure for node group
 - select multiple nodes/edges for dialog
 
-# m2l
+# m2m
 - Support selecting multiple nodes/edges via the keyboard in edit.html
   - When you press 'shift' while pressing arrow keys, then add the destination node to the selection.
 
-# m2k
+# m2l
+- In edit.html
+    - Support nodeGroups in the data structure:
+    ```
+    {
+        nodeGroups: {
+            nodes: ['node-0', 'node-1']
+        }, 
+        nodes: [...]
+    }
+    ```
+    - When multiple nodes are selected, and `enter` is pressed, then create a nodeGroup with those nodes.
+- Support rendering nodeGroups in index.html and edit.html
+  - Just draw a rectangle around the nodes in the nodeGroups with dashed lines.
+
+# m2k (X)
 - Support selecting multiple nodes/edges via the mouse in edit.html
   - When you click on a node/edge while holding cmd, then add it to the selection.
-- When multiple things are selected while you press `shift+enter` to create a dialog, you should add all those things to the dialog's highlighted nodes/edges when creating the dialog..
-- When
+- When multiple things are selected while you press `shift+enter` to create a dialog, you should add all those things to the dialog's highlighted nodes/edges when creating the dialog.
 
 # m2j
 - support selecting an edge in edit.html
