@@ -1,6 +1,9 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
 
+import UndoManager from './undo.js';
+const undoManager = new UndoManager();
+
 const NODE_WIDTH = 400;
 const NODE_HEIGHT = 200;
 const GRID_X = 600;
@@ -139,6 +142,9 @@ function init() {
   canvas.addEventListener('dblclick', handleCanvasDblClick);
   canvas.addEventListener('mousemove', handleCanvasMouseMove);
   handleResize();
+
+  // Push initial state
+  undoManager.push(getCurrentState());
 }
 
 function handleResize() {
@@ -314,6 +320,18 @@ function handleInput(e) {
       // Switch to index.html with current diagram ID
       if (diagramId) {
         window.location.href = `index.html?id=${diagramId}`;
+      }
+    }
+
+    // Undo/Redo
+    if (e.metaKey && e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        const nextState = undoManager.redo();
+        if (nextState) applyState(nextState);
+      } else {
+        const prevState = undoManager.undo();
+        if (prevState) applyState(prevState);
       }
     }
 
@@ -1131,6 +1149,9 @@ function loadDiagramFromLocalStorage(id) {
       if (diagram.narrative) {
         narrative = diagram.narrative;
       }
+
+      // Initialize undo stack with the loaded state
+      undoManager.push(getCurrentState());
     }
   } catch (e) {
     console.error('Failed to load diagram from localStorage:', e);
@@ -1142,6 +1163,9 @@ function saveDiagramToLocalStorage() {
   if (nodes.length === 0 && edges.length === 0 && narrative.length === 0) {
     return;
   }
+
+  const state = getCurrentState();
+  undoManager.push(state);
 
   lastEdited = Date.now();
   const diagram = {
@@ -1159,6 +1183,46 @@ function saveDiagramToLocalStorage() {
     narrative: narrative
   };
   localStorage.setItem(diagramId, JSON.stringify(diagram));
+}
+
+function getCurrentState() {
+  return {
+    nodes: JSON.parse(JSON.stringify(nodes)),
+    edges: JSON.parse(JSON.stringify(edges)),
+    narrative: JSON.parse(JSON.stringify(narrative)),
+    cursor: { ...cursor },
+    viewX,
+    viewY,
+    selectedNodeIds: [...selectedNodeIds],
+    selectedEdgeIds: [...selectedEdgeIds],
+    selectedEdgeId,
+    isNodeSelected
+  };
+}
+
+function applyState(state) {
+  nodes = state.nodes;
+  edges = state.edges;
+  narrative = state.narrative;
+  cursor = state.cursor;
+  viewX = state.viewX;
+  viewY = state.viewY;
+  selectedNodeIds = state.selectedNodeIds;
+  selectedEdgeIds = state.selectedEdgeIds;
+  selectedEdgeId = state.selectedEdgeId;
+  isNodeSelected = state.isNodeSelected;
+
+  // Save to local storage without pushing to undo stack again
+  lastEdited = Date.now();
+  const diagram = {
+    diagramId,
+    lastEdited,
+    nodes: nodes,
+    edges: edges,
+    narrative: narrative
+  };
+  localStorage.setItem(diagramId, JSON.stringify(diagram));
+  render();
 }
 
 init();
