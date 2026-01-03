@@ -108,6 +108,8 @@ const narrationBanner = document.getElementById('narration-banner');
 function init() {
   window.addEventListener('resize', handleResize);
   document.addEventListener('keydown', handleInput);
+  canvas.addEventListener('click', handleCanvasClick);
+  canvas.addEventListener('dblclick', handleCanvasDblClick);
   handleResize();
 }
 
@@ -188,6 +190,63 @@ function handleInput(e) {
   } else if (mode === 'edit-narrative') {
     // Modal handles focus
   }
+}
+
+function handleCanvasClick(e) {
+  if (mode !== 'navigate') return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const coords = getGridCoords(mouseX, mouseY);
+  if (coords.isOnNode && coords.x >= 0 && coords.y >= 0) {
+    cursor.x = coords.x;
+    cursor.y = coords.y;
+    updateView();
+    render();
+  }
+}
+
+function handleCanvasDblClick(e) {
+  if (mode !== 'navigate') return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const coords = getGridCoords(mouseX, mouseY);
+  if (coords.isOnNode && coords.x >= 0 && coords.y >= 0) {
+    cursor.x = coords.x;
+    cursor.y = coords.y;
+    updateView();
+    if (drawingStartNode) {
+      finishArrowDrawing();
+    }
+    startEditing();
+    render();
+  }
+}
+
+function getGridCoords(mouseX, mouseY) {
+  const totalWidth = (3) * GRID_X + NODE_WIDTH + 100;
+  const totalHeight = (3) * GRID_Y + NODE_HEIGHT + 100;
+  const scale = Math.min(canvas.width / totalWidth, canvas.height / totalHeight, 1) * 0.9;
+  const canvasCenterX = canvas.width / 2;
+  const canvasCenterY = canvas.height / 2;
+  const gridCenterX = (viewX + 1.5) * GRID_X;
+  const gridCenterY = (viewY + 1.5) * GRID_Y;
+
+  const gridMouseX = (mouseX - canvasCenterX) / scale + gridCenterX;
+  const gridMouseY = (mouseY - canvasCenterY) / scale + gridCenterY;
+
+  const ix = Math.round(gridMouseX / GRID_X);
+  const iy = Math.round(gridMouseY / GRID_Y);
+
+  const isOnNode = Math.abs(gridMouseX - ix * GRID_X) < NODE_WIDTH / 2 &&
+    Math.abs(gridMouseY - iy * GRID_Y) < NODE_HEIGHT / 2;
+
+  return { x: ix, y: iy, isOnNode };
 }
 
 function updateView() {

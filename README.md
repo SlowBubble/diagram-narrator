@@ -1,3 +1,24 @@
+# wishlist
+- import JSON from for edit.html or offline storage?
+- Design data structure for node group
+- select multiple nodes/edges for dialog
+
+# m2k
+- Support selecting multiple nodes/edges in edit.html
+
+# m2j
+- support selecting an edge in edit.html
+  - When the mouse is hovering near it, highlight it orange..
+  - When the mouse click while hovering near the edge, select it.
+  - Highlight the edge in blue when it is selected.
+- When an edge is selected, and you press backspace, delete the edge.
+- Move to a nearby node if the edge is deleted.
+
+# m2i
+- Add mouse support for edit.html
+  - Clicking on a node will select it.
+  - Double clicking on a node is equivalent to pressing enter on the node.
+
 # m2h
 - implement playing out the diaglog in edit.html, similar to index.html, by pressing space.
   - When pressing esc (not in text modal), then you go to the zero step (the start of narration)
