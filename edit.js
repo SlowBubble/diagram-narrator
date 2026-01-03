@@ -140,13 +140,13 @@ function handleInput(e) {
 
       updateView();
 
-      if (!e.shiftKey) {
+      if (!e.metaKey) {
         selectedEdgeId = null;
         selectedEdgeIds = [];
         selectedNodeIds = [];
         isNodeSelected = true;
       } else {
-        // Shift + Arrow: add node to selection
+        // Cmd + Arrow: add node to selection
         const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
         if (node && !selectedNodeIds.includes(node.id)) {
           selectedNodeIds.push(node.id);
@@ -154,7 +154,7 @@ function handleInput(e) {
       }
     }
 
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.metaKey) {
       e.preventDefault();
       if (drawingStartNode) {
         finishArrowDrawing();
@@ -167,7 +167,7 @@ function handleInput(e) {
       showJson();
     }
 
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key === 'Enter' && e.metaKey) {
       e.preventDefault();
       startNarrativeEditing();
     }
@@ -448,10 +448,22 @@ function updateView() {
 
 // Text Area specific handling
 nodeTextArea.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey && !e.metaKey) {
-    e.preventDefault();
-    e.stopPropagation();
-    saveNodeText();
+  if (e.key === 'Enter') {
+    if (!e.metaKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      saveNodeText();
+    } else {
+      // For Cmd+Enter, we want a newline. In a textarea, default behavior
+      // for Cmd+Enter is often nothing or submit depending on OS/Browser.
+      // Let's force a newline.
+      e.preventDefault();
+      const start = nodeTextArea.selectionStart;
+      const end = nodeTextArea.selectionEnd;
+      const value = nodeTextArea.value;
+      nodeTextArea.value = value.substring(0, start) + "\n" + value.substring(end);
+      nodeTextArea.selectionStart = nodeTextArea.selectionEnd = start + 1;
+    }
   } else if (e.key === 'Escape') {
     e.preventDefault();
     e.stopPropagation();
@@ -461,10 +473,19 @@ nodeTextArea.addEventListener('keydown', (e) => {
 
 // Narrative Area specific handling
 narrativeTextArea.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey && !e.metaKey) {
-    e.preventDefault();
-    e.stopPropagation();
-    saveNarrativeStep();
+  if (e.key === 'Enter') {
+    if (!e.metaKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      saveNarrativeStep();
+    } else {
+      e.preventDefault();
+      const start = narrativeTextArea.selectionStart;
+      const end = narrativeTextArea.selectionEnd;
+      const value = narrativeTextArea.value;
+      narrativeTextArea.value = value.substring(0, start) + "\n" + value.substring(end);
+      narrativeTextArea.selectionStart = narrativeTextArea.selectionEnd = start + 1;
+    }
   } else if (e.key === 'Escape') {
     e.preventDefault();
     e.stopPropagation();

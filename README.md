@@ -1,7 +1,8 @@
 # wishlist
-- import JSON from for edit.html or offline storage?
+- Save edit.html to offline storage, and then show them first in index.html
 - Design data structure for node group
 - select multiple nodes/edges for dialog
+
 
 # m2m
 - Support selecting multiple nodes/edges via the keyboard in edit.html
@@ -25,7 +26,7 @@
 # m2k (X)
 - Support selecting multiple nodes/edges via the mouse in edit.html
   - When you click on a node/edge while holding cmd, then add it to the selection.
-- When multiple things are selected while you press `shift+enter` to create a dialog, you should add all those things to the dialog's highlighted nodes/edges when creating the dialog.
+- When multiple things are selected while you press `cmd+enter` to create a dialog, you should add all those things to the dialog's highlighted nodes/edges when creating the dialog.
 
 # m2j
 - support selecting an edge in edit.html
@@ -59,7 +60,7 @@
 
 # m2d
 - Support narrative
-  - When I press `shift+enter` (while not in a text modal), it should open a text modal to add narrative text.
+  - When I press `cmd+enter` (while not in a text modal), it should open a text modal to add narrative text.
   - When I press enter in the text modal, it should add a new narrative step using the node as the highlighted node.
 
 # m2c
@@ -83,7 +84,7 @@
   - arrow keys to move the cursor.
   - Press enter to open a text modal to edit the node text.
     - Press enter in the text modal to create the node with the text.
-    - Press shift+enter or cmd+enter to create new line in the text.
+    - Press cmd+enter to create new line in the text.
     - Press escape to cancel the text modal.
   - Press x will open a text modal showing the diagram in JSON format (pretty, 2 space indent).
 
