@@ -1123,7 +1123,7 @@ function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
   const x = cx - w / 2;
   const y = cy - h / 2;
 
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#fff4e0"; // Light tan
   ctx.fillRect(x, y, w, h);
 
   if (isSelected) {

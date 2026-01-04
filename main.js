@@ -287,8 +287,8 @@ function drawNode(node, isHighlighted) {
   const x = centerX - w / 2;
   const y = centerY - h / 2;
 
-  // Node Background (Always White)
-  ctx.fillStyle = "#ffffff";
+  // Node Background (Light Tan)
+  ctx.fillStyle = "#fff4e0";
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.fill();
