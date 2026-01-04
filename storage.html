@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagram Storage</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      overflow: auto;
+      height: auto;
+      min-height: 100vh;
+      display: block;
+      padding: 40px;
+    }
+
+    #app {
+      display: block;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .table-container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f0f0f0;
+      overflow: hidden;
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+
+    th {
+      background: #f8f9fa;
+      padding: 16px 24px;
+      text-align: left;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 2px solid #eee;
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid #eee;
+      color: #333;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #fcfcfc;
+    }
+
+    .diagram-id {
+      font-weight: 600;
+      color: #000;
+    }
+
+    .date-cell {
+      color: #888;
+      font-size: 14px;
+    }
+
+    .actions-cell {
+      text-align: right;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #000;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #333;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      margin-right: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e5e5;
+    }
+
+    .empty-state {
+      padding: 60px;
+      text-align: center;
+      color: #999;
+      font-size: 18px;
+    }
+
+    .nav {
+      margin-bottom: 40px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav a {
+      color: #666;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav a:hover {
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="nav">
+      <a href="index.html">← Back to Viewer</a>
+      <a href="edit.html">New Diagram</a>
+    </div>
+
+    <h1>My Diagrams</h1>
+    <p style="color: #666;">View and manage your locally saved diagrams.</p>
+
+    <div class="table-container">
+      <table id="storage-table">
+        <thead>
+          <tr>
+            <th>Diagram Name / ID</th>
+            <th>Last Edited</th>
+            <th class="actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Loaded via JS -->
+        </tbody>
+      </table>
+      <div id="empty-state" class="empty-state" style="display: none;">
+        No diagrams found in local storage.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadLocalDiagrams() {
+      const diagrams = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        try {
+          const item = localStorage.getItem(key);
+          const parsed = JSON.parse(item);
+          if (parsed && parsed.diagramId && parsed.lastEdited !== undefined) {
+            diagrams.push(parsed);
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      return diagrams.sort((a, b) => b.lastEdited - a.lastEdited);
+    }
+
+    function formatDate(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function renderTable() {
+      const diagrams = loadLocalDiagrams();
+      const tableBody = document.getElementById('table-body');
+      const table = document.getElementById('storage-table');
+      const emptyState = document.getElementById('empty-state');
+
+      if (diagrams.length === 0) {
+        table.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      table.style.display = 'table';
+      emptyState.style.display = 'none';
+      tableBody.innerHTML = '';
+
+      diagrams.forEach(diagram => {
+        const tr = document.createElement('tr');
+
+        // Use the first node's text or the ID as a display name if available
+        let displayName = diagram.diagramId;
+        if (diagram.nodes && diagram.nodes.length > 0) {
+          const firstNode = diagram.nodes.find(n => n.text);
+          if (firstNode) {
+            displayName = firstNode.text.split('\n')[0];
+          }
+        }
+
+        tr.innerHTML = `
+          <td>
+            <div class="diagram-id">${displayName}</div>
+            <div style="font-size: 12px; color: #aaa;">${diagram.diagramId}</div>
+          </td>
+          <td class="date-cell">${formatDate(diagram.lastEdited)}</td>
+          <td class="actions-cell">
+            <a href="index.html?id=${diagram.diagramId}" class="btn btn-secondary">View</a>
+            <a href="edit.html?id=${diagram.diagramId}" class="btn btn-primary">Edit</a>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    window.onload = renderTable;
+  </script>
+</body>
+
+</html>

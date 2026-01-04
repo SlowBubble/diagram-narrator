@@ -198,6 +198,75 @@ function handleInput(e) {
     const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
 
     if (isArrowKey) {
+      if (e.altKey) {
+        e.preventDefault();
+        let nodesToMove = [];
+        const atomicNodes = new Set();
+        const collect = (id) => {
+          const n = nodes.find(node => node.id === id);
+          if (!n) return;
+          if (n.children) n.children.forEach(collect);
+          else atomicNodes.add(n);
+        };
+
+        if (selectedNodeIds.length > 0) {
+          selectedNodeIds.forEach(collect);
+          nodesToMove = Array.from(atomicNodes);
+        } else {
+          const nodeAtCursor = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+          if (nodeAtCursor) {
+            nodesToMove = [nodeAtCursor];
+          }
+        }
+
+        if (nodesToMove.length > 0) {
+          let dx = 0, dy = 0;
+          if (e.key === 'ArrowUp') dy = -1;
+          if (e.key === 'ArrowDown') dy = 1;
+          if (e.key === 'ArrowLeft') dx = -1;
+          if (e.key === 'ArrowRight') dx = 1;
+
+          if (dx !== 0 || dy !== 0) {
+            let offset = 1;
+            let possible = false;
+            while (offset < 100) {
+              let collision = false;
+              for (const node of nodesToMove) {
+                const nx = node.x + dx * offset;
+                const ny = node.y + dy * offset;
+                if (nx < 0 || ny < 0) {
+                  collision = true;
+                  break;
+                }
+                if (nodes.some(n => n.x === nx && n.y === ny && !nodesToMove.includes(n))) {
+                  collision = true;
+                  break;
+                }
+              }
+              if (!collision) {
+                possible = true;
+                break;
+              }
+              offset++;
+            }
+
+            if (possible) {
+              undoManager.push(getCurrentState());
+              nodesToMove.forEach(node => {
+                node.x += dx * offset;
+                node.y += dy * offset;
+              });
+              cursor.x += dx * offset;
+              cursor.y += dy * offset;
+              updateView();
+              saveDiagramToLocalStorage();
+              render();
+            }
+          }
+        }
+        return;
+      }
+
       const oldX = cursor.x;
       const oldY = cursor.y;
       const oldNode = nodes.find(n => n.x === oldX && n.y === oldY);

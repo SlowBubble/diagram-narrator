@@ -1,5 +1,17 @@
 # wishlist
 
+# m4a
+- For index.html, create a query param canto=1
+  - When this is set, then only show the canto diagrams, and use a cantonese voice for utterance.
+  - Create cantoDiagrams.js which translates all the diagrams.js into cantonese text and cantonese dialogs.
+
+# m3j
+- Add a storage.html page that allows you to view the diagrams in local storage in a table along with the last edited date, sorted by most recent.
+  - Add a link to take me to the edit.html page.
+
+# m3i (DONE)
+- alt+arrow move a node to another node if that spot is not occupied, otherwise keep going in the same direction until it is.
+
 # m3h
 - Let's color a node without children with light tan.
 
