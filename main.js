@@ -1,7 +1,15 @@
 import { diagrams as staticDiagrams } from './diagrams.js';
+import { diagrams as cantoDiagrams } from './cantoDiagrams.js';
+
+const urlParams = new URLSearchParams(window.location.search);
+const isCanto = urlParams.get('canto') === '1';
 
 // Load diagrams from localStorage and combine with static diagrams
 function loadDiagrams() {
+  if (isCanto) {
+    return cantoDiagrams;
+  }
+
   const localDiagrams = [];
 
   // Iterate through localStorage to find all diagrams
@@ -44,7 +52,11 @@ const GRID_Y = 350;
 const FONT_SIZE = 56;
 
 function init() {
-  const urlParams = new URLSearchParams(window.location.search);
+  if (isCanto) {
+    document.title = "圖表講述";
+    document.documentElement.lang = "zh-HK";
+  }
+
   const idParam = urlParams.get('id');
   if (idParam) {
     // Find diagram by diagramId
@@ -76,6 +88,13 @@ function syncURL() {
   } else {
     url.searchParams.delete('id');
   }
+
+  if (isCanto) {
+    url.searchParams.set('canto', '1');
+  } else {
+    url.searchParams.delete('canto');
+  }
+
   window.history.replaceState({}, '', url);
 }
 
@@ -109,7 +128,7 @@ function handleInput(e) {
         speak("");
       } else {
         render();
-        speak("Game time is over. Go take a break.");
+        speak(isCanto ? "遊戲時間結束喇，去休息下啦。" : "Game time is over. Go take a break.");
       }
     }
   }
@@ -469,7 +488,7 @@ function nextStep() {
       // Wait for user input to start narrative of next diagram
     } else {
       render();
-      speak("Game time is over. Go take a break.");
+      speak(isCanto ? "遊戲時間結束喇，去休息下啦。" : "Game time is over. Go take a break.");
     }
     return;
   }
@@ -493,7 +512,7 @@ function drawGameOver() {
   ctx.font = "60px Inter, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+  ctx.fillText(isCanto ? "遊戲結束" : "Game Over", canvas.width / 2, canvas.height / 2);
 }
 
 function speak(text) {
@@ -501,13 +520,27 @@ function speak(text) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
-    const maleVoice = voices.find(v =>
-      v.name.includes("Google US English") ||
-      v.name.includes("David") ||
-      v.name.includes("Daniel") ||
-      v.name.toLowerCase().includes("male")
-    );
-    if (maleVoice) utterance.voice = maleVoice;
+
+    if (isCanto) {
+      const cantoVoice = voices.find(v =>
+        v.lang.includes("zh-HK") ||
+        v.name.includes("Cantonese") ||
+        v.name.includes("Sin-ji")
+      );
+      if (cantoVoice) {
+        utterance.voice = cantoVoice;
+      } else {
+        utterance.lang = "zh-HK";
+      }
+    } else {
+      const maleVoice = voices.find(v =>
+        v.name.includes("Google US English") ||
+        v.name.includes("David") ||
+        v.name.includes("Daniel") ||
+        v.name.toLowerCase().includes("male")
+      );
+      if (maleVoice) utterance.voice = maleVoice;
+    }
     window.speechSynthesis.speak(utterance);
   }
 }

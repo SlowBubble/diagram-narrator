@@ -1,0 +1,392 @@
+export const diagrams = [
+  {
+    diagramId: "learn-struggle-challenge",
+    nodes: [
+      { id: "0", text: "學習", x: 0, y: 0 },
+      { id: "1", text: "磨練", x: 0, y: 1 },
+      { id: "2", text: "挑戰", x: 1, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "1", end: "0" },
+      { id: "1", start: "2", end: "1" },
+    ],
+    narrative: [
+      { utter: "要學習，你需要做啲咩？", highlightedNodes: ["0"] },
+      { utter: "你需要經過磨練。", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
+      { utter: "要有磨練，你需要做啲咩？", highlightedNodes: ["1"] },
+      { utter: "你需要搵一個合適嘅挑戰，唔好太易，亦都唔好太難。", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] }
+    ],
+  },
+  {
+    diagramId: "rent-earn-learn",
+    nodes: [
+      { id: "0", text: "租屋", x: 0, y: 0 },
+      { id: "1", text: "搵錢", x: 0, y: 1 },
+      { id: "2", text: "學習", x: 1, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "1", end: "0" },
+      { id: "1", start: "2", end: "1" },
+    ],
+    narrative: [
+      { utter: "想租自己嘅地方住，你需要做啲咩？", highlightedNodes: ["0"] },
+      { utter: "你需要搵錢。", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
+      { utter: "要搵錢，你需要做啲咩？", highlightedNodes: ["1"] },
+      { utter: "你需要學習有用嘅技能。", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] }
+    ],
+  },
+  {
+    diagramId: "school-progression",
+    nodes: [
+      { id: "0", text: "高中", x: 0, y: 0 },
+      { id: "1", text: "初中", x: 1, y: 0 },
+      { id: "2", text: "小學", x: 1, y: 1 },
+      { id: "3", text: "幼稚園", x: 0, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "1", end: "0" },
+      { id: "1", start: "2", end: "1" },
+      { id: "2", start: "3", end: "2" },
+    ],
+    narrative: [
+      { utter: "要讀高中，你需要做啲咩？", highlightedNodes: ["0"] },
+      { utter: "你需要讀完初中。", highlightedNodes: ["0", "1"], highlightedEdges: ["0"] },
+      { utter: "要讀初中，你需要做啲咩？", highlightedNodes: ["1"] },
+      { utter: "你需要讀完小學。", highlightedNodes: ["2", "1"], highlightedEdges: ["1"] },
+      { utter: "要讀小學，你需要做啲咩？", highlightedNodes: ["2"] },
+      { utter: "你需要讀完幼稚園。", highlightedNodes: ["3", "2"], highlightedEdges: ["2"] },
+    ],
+  },
+  {
+    diagramId: "red-line-stops",
+    nodes: [
+      { id: "0", text: "Porter", x: 0, y: 0 },
+      { id: "1", text: "Harvard", x: 0, y: 1 },
+      { id: "2", text: "Central", x: 1, y: 2 },
+      { id: "3", text: "Kendall", x: 2, y: 2 },
+    ],
+    edges: [
+      { id: "0", start: "0", end: "1" },
+      { id: "1", start: "1", end: "2" },
+      { id: "2", start: "2", end: "3" },
+    ],
+    narrative: [
+      { utter: "下一站", highlightedNodes: ["0"] },
+      { utter: "Porter Square。左邊車門將會打開。", highlightedNodes: ["0"] },
+      { utter: "下一站", highlightedEdges: ["0"] },
+      { utter: "Harvard Square。右邊車門將會打開。", highlightedNodes: ["1"], highlightedEdges: ["0"] },
+      { utter: "下一站", highlightedEdges: ["1"] },
+      { utter: "Central Square。右邊車門將會打開。", highlightedNodes: ["2"], highlightedEdges: ["1"] },
+      { utter: "下一站", highlightedEdges: ["2"] },
+      { utter: "Kendall Square。右邊車門將會打開。", highlightedNodes: ["3"], highlightedEdges: ["2"] },
+    ],
+  },
+  {
+    diagramId: "big-problem-breakdown",
+    nodes: [
+      { id: "0", text: "大問題", x: 0, y: 0 },
+      { id: "1", text: "拆解佢", x: 1, y: 0 },
+      { id: "2", text: "逐個解決", x: 1, y: 1 },
+      { id: "3", text: "結合", x: 0, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "1", end: "0" },
+      { id: "1", start: "2", end: "1" },
+      { id: "2", start: "3", end: "2" },
+      { id: "3", start: "3", end: "0", dashed: true },
+    ],
+    narrative: [
+      { utter: "要解決一個大問題，你需要做啲咩？", highlightedNodes: ["0"], highlightedEdges: ["0"] },
+      { utter: "你需要將佢拆解做細小嘅部分。", highlightedNodes: ["1"], highlightedEdges: ["0"] },
+      { utter: "拆解咗之後，你需要做啲咩？", highlightedNodes: ["1"], highlightedEdges: ["1"] },
+      { utter: "你需要逐個部分去解決。", highlightedNodes: ["2"], highlightedEdges: ["1"] },
+      { utter: "解決咗之後，你需要做啲咩？", highlightedNodes: ["2"], highlightedEdges: ["2"] },
+      { utter: "你需要將啲解決方案結合埋一齊。", highlightedNodes: ["3"], highlightedEdges: ["2"] },
+      { utter: "結合咗之後會點？", highlightedNodes: ["3"], highlightedEdges: ["3"] },
+      { utter: "朋友，你已經解決咗嗰個大問題喇。", highlightedNodes: ["0"] },
+    ],
+  },
+  {
+    diagramId: "run-crash-cry-learn",
+    nodes: [
+      { id: "0", text: "奔跑", x: 0, y: 0 },
+      { id: "1", text: "撞到", x: 0, y: 1 },
+      { id: "2", text: "喊", x: 1, y: 1 },
+      { id: "3", text: "學習", x: 1, y: 0 },
+    ],
+    edges: [
+      { id: "0", start: "0", end: "1" },
+      { id: "1", start: "1", end: "2" },
+      { id: "2", start: "2", end: "3" },
+    ],
+    narrative: [
+      { utter: "如果你喺室內奔跑，會發生咩事？", highlightedNodes: ["0"] },
+      { utter: "你可能會撞到人。", highlightedNodes: ["1"], highlightedEdges: ["0"] },
+      { utter: "撞到人之後，會發生咩事？", highlightedNodes: ["1"] },
+      { utter: "你會喊。", highlightedNodes: ["2"], highlightedEdges: ["1"] },
+      { utter: "喊完之後會點？", highlightedNodes: ["2"], highlightedEdges: ["2"] },
+      { utter: "你會從錯誤中學習，以後唔再喺室內奔跑。", highlightedNodes: ["3"], highlightedEdges: ["2"] },
+    ],
+  },
+  {
+    diagramId: "grade-scale",
+    nodes: [
+      { id: "n1", text: "90-100%", x: 0, y: 0 },
+      { id: "g1", text: "A級", x: 1, y: 0 },
+      { id: "n2", text: "80-90%", x: 0, y: 1 },
+      { id: "g2", text: "B級", x: 1, y: 1 },
+      { id: "n3", text: "70-80%", x: 0, y: 2 },
+      { id: "g3", text: "C級", x: 1, y: 2 },
+      { id: "n4", text: "60-70%", x: 0, y: 3 },
+      { id: "g4", text: "D級", x: 1, y: 3 },
+      { id: "n5", text: "0-60%", x: 0, y: 4 },
+      { id: "g5", text: "F級", x: 1, y: 4 },
+    ],
+    edges: [
+      { id: "0", start: "n1", end: "g1" },
+      { id: "1", start: "n2", end: "g2" },
+      { id: "2", start: "n3", end: "g3" },
+      { id: "3", start: "n4", end: "g4" },
+      { id: "4", start: "n5", end: "g5" },
+    ],
+    narrative: [
+      { utter: "如果你考試攞到九十幾分，你會攞到咩等級？", highlightedNodes: ["n1"] },
+      { utter: "你會攞到A級。", highlightedNodes: ["g1"], highlightedEdges: ["0"] },
+      { utter: "如果你攞到八十幾分呢？", highlightedNodes: ["n2"] },
+      { utter: "你會攞到B級。", highlightedNodes: ["g2"], highlightedEdges: ["1"] },
+      { utter: "如果你攞到七十幾分呢？", highlightedNodes: ["n3"] },
+      { utter: "你會攞到C級。", highlightedNodes: ["g3"], highlightedEdges: ["2"] },
+      { utter: "如果你攞到六十幾分呢？", highlightedNodes: ["n4"] },
+      { utter: "你會攞到D級。", highlightedNodes: ["g4"], highlightedEdges: ["3"] },
+      { utter: "如果你攞少過六十分呢？", highlightedNodes: ["n5"] },
+      { utter: "你會攞到F級。", highlightedNodes: ["g5"], highlightedEdges: ["4"] },
+    ],
+  },
+  {
+    diagramId: "clock-hours",
+    nodes: [
+      { id: "c", text: "鐘點", x: 1, y: 1 },
+      { id: "0", text: "12", x: 1, y: 0 },
+      { id: "15", text: "3", x: 2, y: 1 },
+      { id: "30", text: "6", x: 1, y: 2 },
+      { id: "45", text: "9", x: 0, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "c", end: "0" },
+      { id: "15", start: "c", end: "15" },
+      { id: "30", start: "c", end: "30" },
+      { id: "45", start: "c", end: "45" },
+    ],
+    narrative: [
+      { utter: "我哋嚟學習鐘面上面嘅鐘點。", highlightedNodes: ["c"] },
+      { utter: "當時針指向上面，係幾點？", highlightedEdges: ["0"] },
+      { utter: "係12點。", highlightedEdges: ["0"], highlightedNodes: ["0"] },
+      { utter: "當時針指向右面，係幾點？", highlightedEdges: ["15"] },
+      { utter: "係3點。", highlightedEdges: ["15"], highlightedNodes: ["15"] },
+      { utter: "當時針指向下面，係幾點？", highlightedEdges: ["30"] },
+      { utter: "係6點。", highlightedEdges: ["30"], highlightedNodes: ["30"] },
+      { utter: "當時針指向左面，係幾點？", highlightedEdges: ["45"] },
+      { utter: "係9點。", highlightedEdges: ["45"], highlightedNodes: ["45"] },
+      { utter: "當佢再次指向上面，係幾點？", highlightedEdges: ["0"] },
+      { utter: "我哋又返到去12點喇。", highlightedEdges: ["0"], highlightedNodes: ["0"] },
+    ],
+  },
+  {
+    diagramId: "clock-minutes",
+    nodes: [
+      { id: "c", text: "分鐘", x: 1, y: 1 },
+      { id: "0", text: "0", x: 1, y: 0 },
+      { id: "15", text: "15", x: 2, y: 1 },
+      { id: "30", text: "30", x: 1, y: 2 },
+      { id: "45", text: "45", x: 0, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "c", end: "0" },
+      { id: "15", start: "c", end: "15" },
+      { id: "30", start: "c", end: "30" },
+      { id: "45", start: "c", end: "45" },
+    ],
+    narrative: [
+      { utter: "我哋嚟學習鐘面上面嘅分鐘。", highlightedNodes: ["c"] },
+      { utter: "當分針指向上面，係幾多分鐘？", highlightedEdges: ["0"] },
+      { utter: "係0分鐘。", highlightedEdges: ["0"], highlightedNodes: ["0"] },
+      { utter: "當分針指向右面，係幾多分鐘？", highlightedEdges: ["15"] },
+      { utter: "係15分鐘。", highlightedEdges: ["15"], highlightedNodes: ["15"] },
+      { utter: "當分針指向下面，係幾多分鐘？", highlightedEdges: ["30"] },
+      { utter: "係30分鐘。", highlightedEdges: ["30"], highlightedNodes: ["30"] },
+      { utter: "當分針指向左面，係幾多分鐘？", highlightedEdges: ["45"] },
+      { utter: "係45分鐘。", highlightedEdges: ["45"], highlightedNodes: ["45"] },
+      { utter: "當佢再次指向上面，係幾多分鐘？", highlightedEdges: ["0"] },
+      { utter: "係下一粒鐘嘅0分鐘。", highlightedEdges: ["0"], highlightedNodes: ["0"] },
+    ],
+  },
+  {
+    diagramId: "compass-basic",
+    nodes: [
+      { id: "c", text: "指南針\n方向", x: 1, y: 1 },
+      { id: "0", text: "北", x: 1, y: 0 },
+      { id: "15", text: "東", x: 2, y: 1 },
+      { id: "30", text: "南", x: 1, y: 2 },
+      { id: "45", text: "西", x: 0, y: 1 },
+    ],
+    edges: [
+      { id: "0", start: "c", end: "0" },
+      { id: "15", start: "c", end: "15" },
+      { id: "30", start: "c", end: "30" },
+      { id: "45", start: "c", end: "45" },
+    ],
+    narrative: [
+      { utter: "我哋嚟學習指南針上面嘅方向。", highlightedNodes: ["c"] },
+      { utter: "當指南針指向上面，係咩方向？", highlightedEdges: ["0"] },
+      { utter: "係指向北面。", highlightedEdges: ["0"], highlightedNodes: ["0"] },
+      { utter: "當指南針指向右面，係咩方向？", highlightedEdges: ["15"] },
+      { utter: "係指向東面。", highlightedEdges: ["15"], highlightedNodes: ["15"] },
+      { utter: "當指南針指向下面，係咩方向？", highlightedEdges: ["30"] },
+      { utter: "係指向南面。", highlightedEdges: ["30"], highlightedNodes: ["30"] },
+      { utter: "當指南針指向左面，係咩方向？", highlightedEdges: ["45"] },
+      { utter: "係指向西面。", highlightedEdges: ["45"], highlightedNodes: ["45"] },
+    ],
+  },
+  {
+    diagramId: "compass-advanced",
+    nodes: [
+      { id: "c", text: "指南針\n方向", x: 1, y: 1 },
+      { id: "0", text: "北", x: 1, y: 0 },
+      { id: "ne", text: "東北", x: 2, y: 0 },
+      { id: "15", text: "東", x: 2, y: 1 },
+      { id: "se", text: "東南", x: 2, y: 2 },
+      { id: "30", text: "南", x: 1, y: 2 },
+      { id: "sw", text: "西南", x: 0, y: 2 },
+      { id: "45", text: "西", x: 0, y: 1 },
+      { id: "nw", text: "西北", x: 0, y: 0 },
+    ],
+    edges: [
+      { id: "0", start: "c", end: "0" },
+      { id: "ne", start: "c", end: "ne" },
+      { id: "15", start: "c", end: "15" },
+      { id: "se", start: "c", end: "se" },
+      { id: "30", start: "c", end: "30" },
+      { id: "sw", start: "c", end: "sw" },
+      { id: "45", start: "c", end: "45" },
+      { id: "nw", start: "c", end: "nw" },
+    ],
+    narrative: [
+      { utter: "我哋嚟學習指南針上面嘅方向。", highlightedNodes: ["c"] },
+      { utter: "當指南針指向上面，係咩方向？", highlightedEdges: ["0"] },
+      { utter: "係指向北面。", highlightedEdges: ["0"], highlightedNodes: ["0"] },
+      { utter: "當指南針指向右上，係咩方向？", highlightedEdges: ["ne"] },
+      { utter: "係指向東北面。", highlightedEdges: ["ne"], highlightedNodes: ["ne"] },
+      { utter: "當指南針指向右面，係咩方向？", highlightedEdges: ["15"] },
+      { utter: "係指向東面。", highlightedEdges: ["15"], highlightedNodes: ["15"] },
+      { utter: "當指南針指向右下，係咩方向？", highlightedEdges: ["se"] },
+      { utter: "係指向東南面。", highlightedEdges: ["se"], highlightedNodes: ["se"] },
+      { utter: "當指南針指向下面，係咩方向？", highlightedEdges: ["30"] },
+      { utter: "係指向南面。", highlightedEdges: ["30"], highlightedNodes: ["30"] },
+      { utter: "當指南針指向左下，係咩方向？", highlightedEdges: ["sw"] },
+      { utter: "係指向西南面。", highlightedEdges: ["sw"], highlightedNodes: ["sw"] },
+      { utter: "當指南針指向左面，係咩方向？", highlightedEdges: ["45"] },
+      { utter: "係指向西面。", highlightedEdges: ["45"], highlightedNodes: ["45"] },
+      { utter: "當指南針指向左上，係咩方向？", highlightedEdges: ["nw"] },
+      { utter: "係指向西北面。", highlightedEdges: ["nw"], highlightedNodes: ["nw"] },
+    ],
+  },
+  {
+    diagramId: "repetitive-task",
+    nodes: [
+      { id: "0", text: "任務", x: 1, y: 1 },
+    ],
+    edges: [
+      { id: "loop", start: "0", end: "0" },
+    ],
+    narrative: [
+      { utter: "有啲任務係重複性嘅。", highlightedNodes: ["0"] },
+      { utter: "佢哋會一直循環落去。", highlightedNodes: ["0"], highlightedEdges: ["loop"] },
+    ],
+  },
+  {
+    "diagramId": "family-tree",
+    "nodes": [
+      { "id": "node-0", "text": "媽咪", "x": 0, "y": 1 },
+      { "id": "node-1", "text": "爹哋", "x": 1, "y": 1 },
+      { "id": "group-0", "children": ["node-1", "node-0"] },
+      { "id": "node-2", "text": "哥哥/細佬", "x": 0, "y": 2 },
+      { "id": "node-3", "text": "我", "x": 1, "y": 2 },
+      { "id": "node-4", "text": "奶奶", "x": 1, "y": 0 },
+      { "id": "node-5", "text": "爺爺", "x": 2, "y": 0 },
+      { "id": "group-1", "children": ["node-5", "node-4"] },
+      { "id": "node-6", "text": "阿叔/阿伯", "x": 2, "y": 1 },
+      { "id": "node-7", "text": "阿嬸", "x": 3, "y": 1 },
+      { "id": "group-2", "children": ["node-6", "node-7"] },
+      { "id": "node-8", "text": "堂兄妹", "x": 2, "y": 2 }
+    ],
+    "edges": [
+      { "id": "edge-0", "start": "group-0", "end": "node-3" },
+      { "id": "edge-1", "start": "group-0", "end": "node-2" },
+      { "id": "edge-2", "start": "group-1", "end": "node-1" },
+      { "id": "edge-3", "start": "group-2", "end": "node-8" },
+      { "id": "edge-4", "start": "group-1", "end": "node-6" }
+    ],
+    "narrative": [
+      { "utter": "呢個係我。", "highlightedNodes": ["node-3"] },
+      { "utter": "呢對係我父母。", "highlightedNodes": ["group-0"] },
+      { "utter": "呢對係我爺爺奶奶。佢哋係我爹哋嘅父母。", "highlightedNodes": ["node-1", "group-1"], "highlightedEdges": ["edge-0", "edge-2"] },
+      { "utter": "呢個係我阿叔。佢係我爹哋嘅兄弟。", "highlightedNodes": ["node-1", "group-1", "node-6"], "highlightedEdges": ["edge-0", "edge-2", "edge-4"] },
+      { "utter": "呢個係我堂親。佢係我阿叔嘅女。", "highlightedNodes": ["node-1", "group-1", "node-8", "group-2"], "highlightedEdges": ["edge-0", "edge-2", "edge-4", "edge-3"] }
+    ]
+  },
+  {
+    "diagramId": "solar-system",
+    "nodes": [
+      { "id": "node-0", "text": "太陽", "x": 1, "y": 0 },
+      { "id": "node-1", "text": "水星", "x": 2, "y": 0 },
+      { "id": "node-2", "text": "金星", "x": 2, "y": 1 },
+      { "id": "node-3", "text": "地球", "x": 2, "y": 2 },
+      { "id": "node-4", "text": "火星", "x": 1, "y": 3 },
+      { "id": "node-5", "text": "木星", "x": 0, "y": 3 }
+    ],
+    "edges": [
+      { "id": "edge-0", "start": "node-0", "end": "node-1" },
+      { "id": "edge-1", "start": "node-0", "end": "node-2" },
+      { "id": "edge-2", "start": "node-0", "end": "node-3" },
+      { "id": "edge-3", "start": "node-0", "end": "node-4" },
+      { "id": "edge-4", "start": "node-0", "end": "node-5" }
+    ],
+    "narrative": [
+      { "utter": "邊粒行星最接近太陽？", "highlightedEdges": ["edge-0"] },
+      { "utter": "係水星。", "highlightedNodes": ["node-1"] },
+      { "utter": "邊粒行星係第二接近太陽？", "highlightedEdges": ["edge-1"] },
+      { "utter": "係金星。", "highlightedNodes": ["node-2"] },
+      { "utter": "邊粒行星係第三接近太陽？", "highlightedEdges": ["edge-2"] },
+      { "utter": "係地球。", "highlightedNodes": ["node-3"] },
+      { "utter": "邊粒行星係第四接近太陽？", "highlightedEdges": ["edge-3"] },
+      { "utter": "係火星。", "highlightedNodes": ["node-4"] },
+      { "utter": "邊粒行星係第五接近太陽？", "highlightedEdges": ["edge-4"] },
+      { "utter": "係木星。", "highlightedNodes": ["node-5"] }
+    ]
+  },
+  {
+    "diagramId": "improve",
+    "nodes": [
+      { "id": "node-0", "text": "進步", "x": 0, "y": 0 },
+      { "id": "node-1", "text": "挑戰", "x": 0, "y": 1 },
+      { "id": "node-2", "text": "失敗", "x": 1, "y": 1 },
+      { "id": "node-3", "text": "學習", "x": 1, "y": 0 }
+    ],
+    "edges": [
+      { "id": "edge-0", "start": "node-0", "end": "node-1", "dashed": true },
+      { "id": "edge-1", "start": "node-1", "end": "node-2" },
+      { "id": "edge-2", "start": "node-2", "end": "node-3" },
+      { "id": "edge-3", "start": "node-3", "end": "node-0" }
+    ],
+    "narrative": [
+      { "utter": "你要點樣令自己嘅人生進步？", "highlightedNodes": ["node-0"], "highlightedEdges": ["edge-0"] },
+      { "utter": "你要由一個有意義嘅挑戰開始，唔好太難，亦都唔好太易。", "highlightedNodes": ["node-1"], "highlightedEdges": [] },
+      { "utter": "當你面對挑戰嗰陣會發生咩事？", "highlightedNodes": [], "highlightedEdges": ["edge-1"] },
+      { "utter": "你極大可能會失敗。", "highlightedNodes": ["node-2"], "highlightedEdges": [] },
+      { "utter": "失敗咗之後會點？", "highlightedNodes": [], "highlightedEdges": ["edge-2"] },
+      { "utter": "你需要理解個失敗，並從中學習。", "highlightedNodes": ["node-3"], "highlightedEdges": [] },
+      { "utter": "學習完之後會點？", "highlightedNodes": [], "highlightedEdges": ["edge-3"] },
+      { "utter": "朋友，你而家已經進步咗喇。", "highlightedNodes": ["node-0"], "highlightedEdges": [] }
+    ]
+  }
+];

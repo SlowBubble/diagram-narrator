@@ -603,4 +603,117 @@ export const diagrams = [
       },
     ]
   },
+  {
+    "diagramId": "improve",
+    "lastEdited": 1767541552833,
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "Improve",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "id": "node-1",
+        "text": "Challenge",
+        "x": 0,
+        "y": 1
+      },
+      {
+        "id": "node-2",
+        "text": "Fail",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "id": "node-3",
+        "text": "Learn",
+        "x": 1,
+        "y": 0
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "node-0",
+        "end": "node-1",
+        "dashed": true
+      },
+      {
+        "id": "edge-1",
+        "start": "node-1",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-2",
+        "start": "node-2",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-3",
+        "start": "node-3",
+        "end": "node-0"
+      }
+    ],
+    "narrative": [
+      {
+        "utter": "How do you improve your life?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": [
+          "edge-0"
+        ]
+      },
+      {
+        "utter": "You start with a meaningful challenge that is not too hard, but not too easy either.",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What happens when you do the challenge?",
+        "highlightedNodes": [],
+        "highlightedEdges": [
+          "edge-1"
+        ]
+      },
+      {
+        "utter": "You will likely fail.",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What happens when you fail?",
+        "highlightedNodes": [],
+        "highlightedEdges": [
+          "edge-2"
+        ]
+      },
+      {
+        "utter": "You need to understand and learn from your failure.",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What happens after you learn from your failure?",
+        "highlightedNodes": [],
+        "highlightedEdges": [
+          "edge-3"
+        ]
+      },
+      {
+        "utter": "My friend, you have now improved your life.",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      }
+    ]
+  }
 ];
