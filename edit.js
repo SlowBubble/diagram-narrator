@@ -474,6 +474,20 @@ function handleCanvasMouseMove(e) {
   const gridPoint = getGridPoint(mouseX, mouseY);
   const nodeMap = buildNodeMap();
 
+  // Check if we are hovering over any node
+  const isOverNode = Object.values(nodeMap).some(node => {
+    return Math.abs(gridPoint.x - node.centerX) <= node.width / 2 &&
+      Math.abs(gridPoint.y - node.centerY) <= node.height / 2;
+  });
+
+  if (isOverNode) {
+    if (hoveredEdgeId !== null) {
+      hoveredEdgeId = null;
+      render();
+    }
+    return;
+  }
+
   let closestEdgeId = null;
   let minDistance = 50; // Threshold for edge selection
 
@@ -487,11 +501,11 @@ function handleCanvasMouseMove(e) {
       // Self loop distance
       dist = getDistanceToSelfLoop(gridPoint, node1);
     } else {
-      // Straight line distance
-      dist = getDistanceToSegment(gridPoint,
-        { x: node1.centerX, y: node1.centerY },
-        { x: node2.centerX, y: node2.centerY }
-      );
+      // Straight line distance - use intersection points to focus on the visible segment
+      const startPt = getRectIntersection(node2.centerX, node2.centerY, node1.centerX, node1.centerY, node1.width, node1.height);
+      const endPt = getRectIntersection(node1.centerX, node1.centerY, node2.centerX, node2.centerY, node2.width, node2.height);
+
+      dist = getDistanceToSegment(gridPoint, startPt, endPt);
     }
 
     if (dist < minDistance) {
