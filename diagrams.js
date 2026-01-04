@@ -304,6 +304,176 @@ export const diagrams = [
     ],
   },
   {
+    "diagramId": "family-tree",
+    "lastEdited": 1767477837010,
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "Mommy",
+        "x": 0,
+        "y": 1
+      },
+      {
+        "id": "node-1",
+        "text": "Daddy",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "id": "group-0",
+        "children": [
+          "node-1",
+          "node-0"
+        ]
+      },
+      {
+        "id": "node-2",
+        "text": "Brother",
+        "x": 0,
+        "y": 2
+      },
+      {
+        "id": "node-3",
+        "text": "Me",
+        "x": 1,
+        "y": 2
+      },
+      {
+        "id": "node-4",
+        "text": "Grandma",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "id": "node-5",
+        "text": "Grandpa",
+        "x": 2,
+        "y": 0
+      },
+      {
+        "id": "group-1",
+        "children": [
+          "node-5",
+          "node-4"
+        ]
+      },
+      {
+        "id": "node-6",
+        "text": "Uncle",
+        "x": 2,
+        "y": 1
+      },
+      {
+        "id": "node-7",
+        "text": "Auntie",
+        "x": 3,
+        "y": 1
+      },
+      {
+        "id": "group-2",
+        "children": [
+          "node-6",
+          "node-7"
+        ]
+      },
+      {
+        "id": "node-8",
+        "text": "Cousin",
+        "x": 2,
+        "y": 2
+      },
+      {
+        "id": "group-3",
+        "children": [
+          "node-1",
+          "node-0"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "group-0",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-1",
+        "start": "group-0",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-2",
+        "start": "group-1",
+        "end": "node-1"
+      },
+      {
+        "id": "edge-3",
+        "start": "group-2",
+        "end": "node-8"
+      },
+      {
+        "id": "edge-4",
+        "start": "group-1",
+        "end": "node-6"
+      }
+    ],
+    "narrative": [
+      {
+        "utter": "This is me.",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "These are my parents.",
+        "highlightedNodes": [
+          "group-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "These are my grandparents. They are my Daddy's parents.",
+        "highlightedNodes": [
+          "node-1",
+          "group-1"
+        ],
+        "highlightedEdges": [
+          "edge-0",
+          "edge-2"
+        ]
+      },
+      {
+        "utter": "This is my Uncle. He is my Daddy's brother.",
+        "highlightedNodes": [
+          "node-1",
+          "group-1",
+          "node-6"
+        ],
+        "highlightedEdges": [
+          "edge-0",
+          "edge-2",
+          "edge-4"
+        ]
+      },
+      {
+        "utter": "This is my cousin. He is my uncle's daughter.",
+        "highlightedNodes": [
+          "node-1",
+          "group-1",
+          "node-8",
+          "group-2"
+        ],
+        "highlightedEdges": [
+          "edge-0",
+          "edge-2",
+          "edge-4",
+          "edge-3"
+        ]
+      }
+    ]
+  },
+  {
     "diagramId": "solar-system",
     "nodes": [
       {
@@ -373,73 +543,63 @@ export const diagrams = [
     "narrative": [
       {
         "utter": "What planet is closest to the Sun?",
-        "highlightedNodes": [
-          "node-0"
+        "highlightedEdges": [
+          "edge-0"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "It is Mercury",
         "highlightedNodes": [
           "node-1"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "What planet is the second closest to the Sun?",
-        "highlightedNodes": [
-          "node-0"
+        "highlightedEdges": [
+          "edge-1"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "It is Venus",
         "highlightedNodes": [
           "node-2"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "What planet is the third closest to the Sun?",
-        "highlightedNodes": [
-          "node-0"
+        "highlightedEdges": [
+          "edge-2"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "It is Earth",
         "highlightedNodes": [
           "node-3"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "What planet is the fourth closest to the Sun?",
-        "highlightedNodes": [
-          "node-0"
+        "highlightedEdges": [
+          "edge-3"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "It is Mars",
         "highlightedNodes": [
           "node-4"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "What planet is the fifth closest to the Sun?",
-        "highlightedNodes": [
-          "node-0"
+        "highlightedEdges": [
+          "edge-4"
         ],
-        "highlightedEdges": []
       },
       {
         "utter": "It is Jupiter",
         "highlightedNodes": [
           "node-5"
         ],
-        "highlightedEdges": []
       },
     ]
   },
