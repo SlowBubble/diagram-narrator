@@ -63,7 +63,7 @@ export const diagrams = [
       { id: "0", text: "Porter", x: 0, y: 0 },
       { id: "1", text: "Harvard", x: 0, y: 1 },
       { id: "2", text: "Central", x: 1, y: 2 },
-      { id: "3", text: "Kendall", x: 2, y: 2 },
+      { id: "3", text: "Kendall /\nMIT", x: 2, y: 2 },
     ],
     edges: [
       { id: "0", start: "0", end: "1" },
@@ -78,7 +78,7 @@ export const diagrams = [
       { utter: "Next stop", highlightedEdges: ["1"] },
       { utter: "Central Square. Doors open on your right.", highlightedNodes: ["2"], highlightedEdges: ["1"] },
       { utter: "Next stop", highlightedEdges: ["2"] },
-      { utter: "Kendall Square. Doors open on your right.", highlightedNodes: ["3"], highlightedEdges: ["2"] },
+      { utter: "Kendall M.I.T.. Doors open on your right.", highlightedNodes: ["3"], highlightedEdges: ["2"] },
     ],
   },
   {

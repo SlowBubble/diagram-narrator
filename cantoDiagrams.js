@@ -60,10 +60,10 @@ export const diagrams = [
   {
     diagramId: "red-line-stops",
     nodes: [
-      { id: "0", text: "Porter", x: 0, y: 0 },
-      { id: "1", text: "Harvard", x: 0, y: 1 },
-      { id: "2", text: "Central", x: 1, y: 2 },
-      { id: "3", text: "Kendall", x: 2, y: 2 },
+      { id: "0", text: "波特", x: 0, y: 0 },
+      { id: "1", text: "哈佛", x: 0, y: 1 },
+      { id: "2", text: "中環", x: 1, y: 2 },
+      { id: "3", text: "MIT", x: 2, y: 2 },
     ],
     edges: [
       { id: "0", start: "0", end: "1" },
@@ -72,13 +72,13 @@ export const diagrams = [
     ],
     narrative: [
       { utter: "下一站", highlightedNodes: ["0"] },
-      { utter: "Porter Square。左邊車門將會打開。", highlightedNodes: ["0"] },
+      { utter: "波特廣場。左邊車門將會打開。", highlightedNodes: ["0"] },
       { utter: "下一站", highlightedEdges: ["0"] },
-      { utter: "Harvard Square。右邊車門將會打開。", highlightedNodes: ["1"], highlightedEdges: ["0"] },
+      { utter: "哈佛廣場。右邊車門將會打開。", highlightedNodes: ["1"], highlightedEdges: ["0"] },
       { utter: "下一站", highlightedEdges: ["1"] },
-      { utter: "Central Square。右邊車門將會打開。", highlightedNodes: ["2"], highlightedEdges: ["1"] },
+      { utter: "中環廣場。右邊車門將會打開。", highlightedNodes: ["2"], highlightedEdges: ["1"] },
       { utter: "下一站", highlightedEdges: ["2"] },
-      { utter: "Kendall Square。右邊車門將會打開。", highlightedNodes: ["3"], highlightedEdges: ["2"] },
+      { utter: "麻省理工。右邊車門將會打開。", highlightedNodes: ["3"], highlightedEdges: ["2"] },
     ],
   },
   {
