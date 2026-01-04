@@ -1,7 +1,14 @@
 # wishlist
 
+# m3f
+- When pressing `esc` not in text modal or in narrative steps, when a node is selected and is contained in a node group, move the cursor to the node group.
+  - Currently, this should be unique, so let's not worry about the case where a node is in multiple node groups.
+
 # m3e
-- 
+- When I select a node group (without cmd), the original node should not be selected.
+  - When navigating with the arrow keys from a node group, just treat it as a giant node, so move to the nodes outside of this giant node.
+- When an edge is selected, and I move away from it using an arrow, treat it as a giant node and move to the nodes outside of this giant node.
+
 # m3d
 - Add undo.js and support `cmd+z` to undo the last action in edit.html, and `cmd+shift+z` to redo an undone action.
 

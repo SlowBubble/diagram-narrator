@@ -147,6 +147,46 @@ function init() {
   undoManager.push(getCurrentState());
 }
 
+function getSelectionGridBounds() {
+  const activeEdgeIds = [...selectedEdgeIds];
+  if (selectedEdgeId && !activeEdgeIds.includes(selectedEdgeId)) activeEdgeIds.push(selectedEdgeId);
+
+  if (selectedNodeIds.length === 0 && activeEdgeIds.length === 0) return null;
+
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let found = false;
+
+  const atomicNodes = new Set();
+  function collect(id) {
+    const node = nodes.find(n => n.id === id);
+    if (!node) return;
+    if (node.children) {
+      node.children.forEach(collect);
+    } else {
+      atomicNodes.add(node);
+    }
+  }
+
+  selectedNodeIds.forEach(collect);
+  activeEdgeIds.forEach(edgeId => {
+    const edge = edges.find(e => e.id === edgeId);
+    if (edge) {
+      collect(edge.start);
+      collect(edge.end);
+    }
+  });
+
+  atomicNodes.forEach(n => {
+    minX = Math.min(minX, n.x);
+    maxX = Math.max(maxX, n.x);
+    minY = Math.min(minY, n.y);
+    maxY = Math.max(maxY, n.y);
+    found = true;
+  });
+
+  return found ? { minX, maxX, minY, maxY } : null;
+}
+
 function handleResize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -162,14 +202,44 @@ function handleInput(e) {
       const oldY = cursor.y;
       const oldNode = nodes.find(n => n.x === oldX && n.y === oldY);
 
-      if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
-      if (e.key === 'ArrowDown') cursor.y = cursor.y + 1;
-      if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
-      if (e.key === 'ArrowRight') cursor.x = cursor.x + 1;
+      const isMulti = e.metaKey || e.shiftKey;
+      let jumped = false;
+
+      if (!isMulti) {
+        const bounds = getSelectionGridBounds();
+        if (bounds) {
+          const isGroup = selectedNodeIds.some(id => nodes.find(n => n.id === id)?.children);
+          const isEdge = (selectedEdgeIds.length > 0 || selectedEdgeId !== null);
+          const isMultiNode = selectedNodeIds.length > 1;
+
+          if (isGroup || isEdge || isMultiNode) {
+            if (e.key === 'ArrowUp') {
+              cursor.y = bounds.minY;
+              cursor.x = bounds.minX;
+            } else if (e.key === 'ArrowDown') {
+              cursor.y = bounds.maxY;
+              cursor.x = bounds.minX;
+            } else if (e.key === 'ArrowLeft') {
+              cursor.x = bounds.minX;
+              cursor.y = Math.round((bounds.minY + bounds.maxY) / 2);
+            } else if (e.key === 'ArrowRight') {
+              cursor.x = bounds.maxX;
+              cursor.y = Math.round((bounds.minY + bounds.maxY) / 2);
+            }
+            jumped = true;
+          }
+        }
+      }
+
+      if (!jumped) {
+        if (e.key === 'ArrowUp') cursor.y = Math.max(0, cursor.y - 1);
+        if (e.key === 'ArrowDown') cursor.y = cursor.y + 1;
+        if (e.key === 'ArrowLeft') cursor.x = Math.max(0, cursor.x - 1);
+        if (e.key === 'ArrowRight') cursor.x = cursor.x + 1;
+      }
 
       updateView();
 
-      const isMulti = e.metaKey || e.shiftKey;
       if (!isMulti) {
         selectedEdgeId = null;
         selectedEdgeIds = [];
@@ -197,7 +267,6 @@ function handleInput(e) {
             selectedEdgeIds.push(edge.id);
           }
         }
-        isNodeSelected = true;
       }
     }
 
@@ -414,7 +483,7 @@ function handleCanvasClick(e) {
       selectedNodeIds = [groupNode.id];
       selectedEdgeIds = [];
       selectedEdgeId = null;
-      isNodeSelected = true;
+      isNodeSelected = false; // Requirement 1: hide cursor node when group selected
     }
     if (drawingStartNode) {
       finishArrowDrawing();
