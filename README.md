@@ -1,5 +1,8 @@
 # wishlist
 
+# m3h
+- Let's color a node without children with light tan.
+
 # m3g
 - `Tab` should just cycle through the edges
   - Start with the list of edges ordered by the start edge's x and y and the end edge's x and y.

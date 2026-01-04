@@ -270,6 +270,72 @@ function handleInput(e) {
       }
     }
 
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (edges.length === 0) return;
+
+      const sortedEdges = [...edges].sort((a, b) => {
+        const as = getNodeCoords(a.start);
+        const ae = getNodeCoords(a.end);
+        const bs = getNodeCoords(b.start);
+        const be = getNodeCoords(b.end);
+        if (as.x !== bs.x) return as.x - bs.x;
+        if (as.y !== bs.y) return as.y - bs.y;
+        if (ae.x !== be.x) return ae.x - be.x;
+        return ae.y - be.y;
+      });
+
+      let nextIndex = 0;
+      if (!isNodeSelected && (selectedEdgeId || selectedEdgeIds.length > 0)) {
+        const currentId = selectedEdgeId || (selectedEdgeIds.length > 0 ? selectedEdgeIds[0] : null);
+        const currentIdx = sortedEdges.findIndex(e => e.id === currentId);
+        nextIndex = (currentIdx + 1) % sortedEdges.length;
+      } else {
+        // From a node or potential node
+        const currentNode = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+        const selectedGroup = (selectedNodeIds.length === 1) ? nodes.find(n => n.id === selectedNodeIds[0] && n.children) : null;
+
+        const targetNodeId = selectedGroup ? selectedGroup.id : (currentNode ? currentNode.id : null);
+        const targetX = selectedGroup ? getNodeCoords(selectedGroup.id).x : cursor.x;
+        const targetY = selectedGroup ? getNodeCoords(selectedGroup.id).y : cursor.y;
+
+        let found = false;
+        if (targetNodeId) {
+          const firstStart = sortedEdges.findIndex(e => e.start === targetNodeId);
+          if (firstStart !== -1) {
+            nextIndex = firstStart;
+            found = true;
+          } else {
+            const firstEnd = sortedEdges.findIndex(e => e.end === targetNodeId);
+            if (firstEnd !== -1) {
+              nextIndex = firstEnd;
+              found = true;
+            }
+          }
+        }
+
+        if (!found) {
+          // Find the edge in the list closest to the node's x and y
+          let minDistance = Infinity;
+          sortedEdges.forEach((e, idx) => {
+            const es = getNodeCoords(e.start);
+            const dist = Math.sqrt(Math.pow(es.x - targetX, 2) + Math.pow(es.y - targetY, 2));
+            if (dist < minDistance) {
+              minDistance = dist;
+              nextIndex = idx;
+            }
+          });
+        }
+      }
+
+      const nextEdge = sortedEdges[nextIndex];
+      selectedEdgeId = nextEdge.id;
+      selectedEdgeIds = [nextEdge.id];
+      selectedNodeIds = [];
+      isNodeSelected = false;
+      render();
+    }
+
     if (e.key === 'Enter' && !e.metaKey) {
       e.preventDefault();
       if (selectedNodeIds.length > 1) {
@@ -1087,6 +1153,22 @@ function drawNode(node, cx, cy, isCursor, isHighlighted, isSelected) {
   } else if (node.text) {
     ctx.fillText(node.text, cx, cy);
   }
+}
+
+
+function getNodeCoords(nodeId) {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return { x: 0, y: 0 };
+  if (node.x !== undefined && node.y !== undefined) return { x: node.x, y: node.y };
+  if (node.children && node.children.length > 0) {
+    let sx = 0, sy = 0;
+    node.children.forEach(cid => {
+      const c = getNodeCoords(cid);
+      sx += c.x; sy += c.y;
+    });
+    return { x: sx / node.children.length, y: sy / node.children.length };
+  }
+  return { x: 0, y: 0 };
 }
 
 function buildNodeMap() {
