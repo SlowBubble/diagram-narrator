@@ -379,6 +379,28 @@ function handleInput(e) {
     }
 
     if (e.key === 'Escape') {
+      if (currentNarrativeIndex >= 0) {
+        currentNarrativeIndex = -1;
+        updateNarrationBanner();
+        speak("");
+        render();
+        return;
+      }
+
+      // Not in narrative steps
+      if (isNodeSelected) {
+        const nodeAtCursor = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+        if (nodeAtCursor) {
+          const group = nodes.find(n => n.children && n.children.includes(nodeAtCursor.id));
+          if (group) {
+            selectedNodeIds = [group.id];
+            isNodeSelected = false;
+            render();
+            return;
+          }
+        }
+      }
+
       currentNarrativeIndex = -1;
       updateNarrationBanner();
       speak("");

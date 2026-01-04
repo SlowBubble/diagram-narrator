@@ -1,5 +1,14 @@
 # wishlist
 
+# m3g
+- `Tab` should just cycle through the edges
+  - Start with the list of edges ordered by the start edge's x and y and the end edge's x and y.
+  - From an edge, go to the next edge in the list
+  - From a node, go to
+    - the first edge that starts at that node if available
+    - the first edge that ends at that node if available
+    - the next edge in the list closest to the node's x and y.
+
 # m3f
 - When pressing `esc` not in text modal or in narrative steps, when a node is selected and is contained in a node group, move the cursor to the node group.
   - Currently, this should be unique, so let's not worry about the case where a node is in multiple node groups.
