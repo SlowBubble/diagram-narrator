@@ -561,6 +561,23 @@ function handleInput(e) {
       }
     }
 
+    if (e.key === 'd') {
+      e.preventDefault();
+      const activeEdgeIds = [...selectedEdgeIds];
+      if (selectedEdgeId && !activeEdgeIds.includes(selectedEdgeId)) activeEdgeIds.push(selectedEdgeId);
+
+      if (activeEdgeIds.length > 0) {
+        undoManager.push(getCurrentState());
+        edges.forEach(edge => {
+          if (activeEdgeIds.includes(edge.id)) {
+            edge.dashed = !edge.dashed;
+          }
+        });
+        saveDiagramToLocalStorage();
+        render();
+      }
+    }
+
     render();
   } else if (mode === 'edit-text') {
     // Modal handles focus
@@ -1116,7 +1133,7 @@ function render() {
         specialColor = "#ffaa00"; // Orange for hover
       }
 
-      drawEdge(startNode, endNode, isHighlighted, false, specialColor);
+      drawEdge(startNode, endNode, isHighlighted, !!edge.dashed, false, specialColor);
     }
   });
 
@@ -1144,7 +1161,7 @@ function render() {
     // Fake end node for geometry calculation
     const endNode = { id: targetId, centerX: targetX, centerY: targetY, width: targetW, height: targetH };
 
-    drawEdge(startNode, endNode, false, true);
+    drawEdge(startNode, endNode, false, false, true);
   }
 
   // Draw Grid/Nodes
@@ -1296,9 +1313,9 @@ function drawNodeGroup(group, nodeMap, isSelected, isHighlighted) {
 }
 
 // Helper functions for Arrow Drawing
-function drawEdge(startNode, endNode, isHighlighted, isGhost = false, specialColor = null) {
+function drawEdge(startNode, endNode, isHighlighted, isDashed = false, isGhost = false, specialColor = null) {
   if (startNode.id === endNode.id) {
-    drawSelfLoop(startNode, isHighlighted, NODE_WIDTH, NODE_HEIGHT, false, isGhost, specialColor);
+    drawSelfLoop(startNode, isHighlighted, NODE_WIDTH, NODE_HEIGHT, isDashed, isGhost, specialColor);
     return;
   }
 
@@ -1331,9 +1348,15 @@ function drawEdge(startNode, endNode, isHighlighted, isGhost = false, specialCol
   }
 
   ctx.beginPath();
+  if (isDashed) {
+    ctx.setLineDash([20, 10]);
+  } else {
+    ctx.setLineDash([]);
+  }
   ctx.moveTo(startPt.x, startPt.y);
   ctx.lineTo(lineEndX, lineEndY);
   ctx.stroke();
+  ctx.setLineDash([]);
 
   drawArrowhead(startPt, endPt, isHighlighted, specialColor);
 
