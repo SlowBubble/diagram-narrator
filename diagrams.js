@@ -1,5 +1,138 @@
 export const diagrams = [
   {
+    "diagramId": "2026-01-05T15:22:05.245Z",
+    "lastEdited": 1767627140255,
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "Pluralize\nY Ending",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "id": "node-1",
+        "text": "Replace Y\nwith IES",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "id": "node-2",
+        "text": "1 Berry",
+        "x": 0,
+        "y": 1
+      },
+      {
+        "id": "node-3",
+        "text": "2 Berries",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "id": "node-6",
+        "text": "1 Pony",
+        "x": 0,
+        "y": 2
+      },
+      {
+        "id": "node-7",
+        "text": "2 Pon???",
+        "x": 1,
+        "y": 2
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "node-0",
+        "end": "node-1"
+      },
+      {
+        "id": "edge-1",
+        "start": "node-2",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-3",
+        "start": "node-6",
+        "end": "node-7"
+      }
+    ],
+    "narrative": [
+      {
+        "utter": "How do you pluralize a word that ends in Y?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": [
+          "edge-0"
+        ]
+      },
+      {
+        "utter": "You replace the Y with I, E, S",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "How do you spell Berry?",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "B, E, R, R, Y",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "How do you spell Berries?",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "B, E, R, R, I, E, S",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "How do you spell pony?",
+        "highlightedNodes": [
+          "node-6"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "P, O, N, Y",
+        "highlightedNodes": [
+          "node-6"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "How do you spell Ponies?",
+        "highlightedNodes": [
+          "node-7"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "P, O, N, I, E, S",
+        "highlightedNodes": [
+          "node-7"
+        ],
+        "highlightedEdges": []
+      }
+    ]
+  },
+  {
     diagramId: "learn-struggle-challenge",
     nodes: [
       { id: "0", text: "Learn", x: 0, y: 0 },
