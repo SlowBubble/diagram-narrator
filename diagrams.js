@@ -1,17 +1,17 @@
 export const diagrams = [
   {
-    "diagramId": "2026-01-05T15:22:05.245Z",
+    "diagramId": "pluralize-y-ending",
     "lastEdited": 1767627140255,
     "nodes": [
       {
         "id": "node-0",
-        "text": "Pluralize\nY Ending",
+        "text": "Pluralize\ny ending",
         "x": 0,
         "y": 0
       },
       {
         "id": "node-1",
-        "text": "Replace Y\nwith IES",
+        "text": "Replace y\nwith ies",
         "x": 1,
         "y": 0
       },
@@ -82,7 +82,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "B, E, R, R, Y. Berry",
+        "utter": "B, E, R, R, Y, Berry",
         "highlightedNodes": [
           "node-2"
         ],
@@ -96,7 +96,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "B, E, R, R, I, E, S. Berries",
+        "utter": "B, E, R, R, I, E, S, Berries",
         "highlightedNodes": [
           "node-3"
         ],
@@ -110,7 +110,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "P, O, N, Y. Pony",
+        "utter": "P, O, N, Y, Pony",
         "highlightedNodes": [
           "node-6"
         ],
@@ -124,7 +124,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "P, O, N, I, E, S. Ponies",
+        "utter": "P, O, N, I, E, S, Ponies",
         "highlightedNodes": [
           "node-7"
         ],
