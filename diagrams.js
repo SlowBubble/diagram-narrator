@@ -82,7 +82,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "B, E, R, R, Y",
+        "utter": "B, E, R, R, Y. Berry",
         "highlightedNodes": [
           "node-2"
         ],
@@ -96,7 +96,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "B, E, R, R, I, E, S",
+        "utter": "B, E, R, R, I, E, S. Berries",
         "highlightedNodes": [
           "node-3"
         ],
@@ -110,7 +110,7 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "P, O, N, Y",
+        "utter": "P, O, N, Y. Pony",
         "highlightedNodes": [
           "node-6"
         ],
@@ -124,12 +124,12 @@ export const diagrams = [
         "highlightedEdges": []
       },
       {
-        "utter": "P, O, N, I, E, S",
+        "utter": "P, O, N, I, E, S. Ponies",
         "highlightedNodes": [
           "node-7"
         ],
         "highlightedEdges": []
-      }
+      },
     ]
   },
   {
