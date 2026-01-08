@@ -1,5 +1,113 @@
 export const diagrams = [
   {
+    "diagramId": "2026-01-08T20:10:32.061Z",
+    "lastEdited": 1767903534505,
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "Safe",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "id": "node-1",
+        "text": "Fun",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "id": "node-2",
+        "text": "Connect",
+        "x": 0,
+        "y": 1
+      },
+      {
+        "id": "node-3",
+        "text": "Respect",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "id": "node-4",
+        "text": "Help",
+        "x": 0,
+        "y": 2
+      },
+      {
+        "id": "node-5",
+        "text": "Grow",
+        "x": 1,
+        "y": 2
+      },
+      {
+        "id": "group-0",
+        "children": [
+          "node-0",
+          "node-1"
+        ]
+      },
+      {
+        "id": "group-1",
+        "children": [
+          "node-2",
+          "node-3"
+        ]
+      },
+      {
+        "id": "group-2",
+        "children": [
+          "node-4",
+          "node-5"
+        ]
+      }
+    ],
+    "edges": [],
+    "narrative": [
+      {
+        "utter": "We need to feel safe. In other words, we need to have stability and certainty in our lives.",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to have fun. In other words, we need variety in our lives.",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to feel connected to others. In other words, we need to feel that others care about us.",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to get respect from others. In other words, we need validation that what we do matters.",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to help others. In other words, we need to feel that we are contributing.",
+        "highlightedNodes": [
+          "node-4"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to grow. In other words, we need to feel that we are learning and improving every day.",
+        "highlightedNodes": [
+          "node-5"
+        ],
+        "highlightedEdges": []
+      }
+    ]
+  },
+  {
     "diagramId": "pluralize-y-ending",
     "lastEdited": 1767627140255,
     "nodes": [
