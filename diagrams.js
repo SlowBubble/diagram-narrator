@@ -64,42 +64,54 @@ export const diagrams = [
     "edges": [],
     "narrative": [
       {
-        "utter": "We need to feel safe. In other words, we need to have stability and certainty in our lives.",
+        "utter": "What are the 6 primary needs of humans?",
+        "highlightedNodes": [
+          "node-0",
+          "node-1",
+          "node-2",
+          "node-3",
+          "node-4",
+          "node-5",
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "First, we need to feel safe. In other words, we need to have stability and certainty in our lives.",
         "highlightedNodes": [
           "node-0"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "We need to have fun. In other words, we need variety in our lives.",
+        "utter": "Second, we need to have fun. In other words, we need variety in our lives.",
         "highlightedNodes": [
           "node-1"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "We need to feel connected to others. In other words, we need to feel that others care about us.",
+        "utter": "Third, we need to feel connected to others. In other words, we need to feel that others care about us.",
         "highlightedNodes": [
           "node-2"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "We need to get respect from others. In other words, we need validation that what we do matters.",
+        "utter": "Fourth, we need to get respect from others. In other words, we need validation that what we do matters.",
         "highlightedNodes": [
           "node-3"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "We need to help others. In other words, we need to feel that we are contributing.",
+        "utter": "Fifth, we need to help others. In other words, we need to feel that we are contributing.",
         "highlightedNodes": [
           "node-4"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "We need to grow. In other words, we need to feel that we are learning and improving every day.",
+        "utter": "Sixth, we need to grow. In other words, we need to feel that we are learning and improving every day.",
         "highlightedNodes": [
           "node-5"
         ],
