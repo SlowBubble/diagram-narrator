@@ -1,5 +1,196 @@
 export const diagrams = [
   {
+    "diagramId": "Needs",
+    "nodes": [
+      {
+        "id": "node-0",
+        "text": "嘗試新事物",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "id": "node-1",
+        "text": "常規",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "id": "node-2",
+        "text": "成長",
+        "x": 0,
+        "y": 1
+      },
+      {
+        "id": "node-3",
+        "text": "連結",
+        "x": 1,
+        "y": 1
+      },
+      {
+        "id": "node-4",
+        "text": "覺得重要",
+        "x": 0,
+        "y": 2
+      },
+      {
+        "id": "node-5",
+        "text": "貢獻",
+        "x": 1,
+        "y": 2
+      },
+      {
+        "id": "group-0",
+        "text": "群體需要",
+        "children": [
+          "node-0",
+          "node-3",
+          "node-5"
+        ]
+      },
+      {
+        "id": "group-1",
+        "text": "自我需要",
+        "children": [
+          "node-4",
+          "node-2",
+          "node-1"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "node-0",
+        "end": "node-1"
+      },
+      {
+        "id": "edge-1",
+        "start": "node-1",
+        "end": "node-0"
+      },
+      {
+        "id": "edge-2",
+        "start": "node-3",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-3",
+        "start": "node-2",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-4",
+        "start": "node-5",
+        "end": "node-4"
+      },
+      {
+        "id": "edge-5",
+        "start": "node-4",
+        "end": "node-5"
+      }
+    ],
+    "narrative": [
+      {
+        "utter": "我哋有三種自我需要。",
+        "highlightedNodes": [
+          "group-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "第一種自我需要係咩？",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋需要一啲常規，令我哋覺得穩定同安全。",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "第二種自我需要係咩？",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋需要成長，感受到我哋嘅生活正在進步緊。",
+        "highlightedNodes": [
+          "node-2"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "第三種自我需要係咩？",
+        "highlightedNodes": [
+          "node-4"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋需要覺得自己重要，覺得自己做嘅嘢係有意義嘅。",
+        "highlightedNodes": [
+          "node-4"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋有三種群體需要。",
+        "highlightedNodes": [
+          "group-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "第一種群體需要係咩？",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋需要嘗試新事物，去感受嗰種新鮮或者刺激嘅感覺。",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "第二種群體需要係咩？",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋需要同人連結，覺得我哋係同某啲人好親近嘅。",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "第三種群體需要係咩？",
+        "highlightedNodes": [
+          "node-5"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "我哋需要作出貢獻，覺得自己喺度幫緊其他人。",
+        "highlightedNodes": [
+          "node-5"
+        ],
+        "highlightedEdges": []
+      }
+    ]
+  },
+  {
     diagramId: "learn-struggle-challenge",
     nodes: [
       { id: "0", text: "學習", x: 0, y: 0 },
