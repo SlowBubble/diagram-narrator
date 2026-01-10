@@ -1,117 +1,189 @@
 export const diagrams = [
   {
-    "diagramId": "2026-01-08T20:10:32.061Z",
-    "lastEdited": 1767903534505,
+    "diagramId": "Needs",
+    "lastEdited": 1768056680648,
     "nodes": [
       {
         "id": "node-0",
-        "text": "Safe",
-        "x": 0,
-        "y": 0
-      },
-      {
-        "id": "node-1",
-        "text": "Fun",
+        "text": "Try New\nThings",
         "x": 1,
         "y": 0
       },
       {
+        "id": "node-1",
+        "text": "Routines",
+        "x": 0,
+        "y": 0
+      },
+      {
         "id": "node-2",
-        "text": "Connect",
+        "text": "Grow",
         "x": 0,
         "y": 1
       },
       {
         "id": "node-3",
-        "text": "Respect",
+        "text": "Connect",
         "x": 1,
         "y": 1
       },
       {
         "id": "node-4",
-        "text": "Help",
+        "text": "Feel\nImportant",
         "x": 0,
         "y": 2
       },
       {
         "id": "node-5",
-        "text": "Grow",
+        "text": "Contribute",
         "x": 1,
         "y": 2
       },
       {
         "id": "group-0",
+        "text": "Group Needs",
         "children": [
           "node-0",
-          "node-1"
+          "node-3",
+          "node-5"
         ]
       },
       {
         "id": "group-1",
-        "children": [
-          "node-2",
-          "node-3"
-        ]
-      },
-      {
-        "id": "group-2",
+        "text": "Self Needs",
         "children": [
           "node-4",
-          "node-5"
+          "node-2",
+          "node-1"
         ]
       }
     ],
-    "edges": [],
+    "edges": [
+      {
+        "id": "edge-0",
+        "start": "node-0",
+        "end": "node-1"
+      },
+      {
+        "id": "edge-1",
+        "start": "node-1",
+        "end": "node-0"
+      },
+      {
+        "id": "edge-2",
+        "start": "node-3",
+        "end": "node-2"
+      },
+      {
+        "id": "edge-3",
+        "start": "node-2",
+        "end": "node-3"
+      },
+      {
+        "id": "edge-4",
+        "start": "node-5",
+        "end": "node-4"
+      },
+      {
+        "id": "edge-5",
+        "start": "node-4",
+        "end": "node-5"
+      }
+    ],
     "narrative": [
       {
-        "utter": "What are the 6 primary needs of humans?",
+        "utter": "We have 3 self needs.",
         "highlightedNodes": [
-          "node-0",
-          "node-1",
-          "node-2",
-          "node-3",
-          "node-4",
-          "node-5",
+          "group-1"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "First, we need to feel safe. In other words, we need to have stability and certainty in our lives.",
-        "highlightedNodes": [
-          "node-0"
-        ],
-        "highlightedEdges": []
-      },
-      {
-        "utter": "Second, we need to have fun. In other words, we need variety in our lives.",
+        "utter": "What is the first self need?",
         "highlightedNodes": [
           "node-1"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "Third, we need to feel connected to others. In other words, we need to feel that others care about us.",
+        "utter": "We need routines to feel stable and safe.",
+        "highlightedNodes": [
+          "node-1"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What is the second self need?",
         "highlightedNodes": [
           "node-2"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "Fourth, we need to get respect from others. In other words, we need validation that what we do matters.",
+        "utter": "We need to grow and feel that our lives are improving.",
         "highlightedNodes": [
-          "node-3"
+          "node-2"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "Fifth, we need to help others. In other words, we need to feel that we are contributing.",
+        "utter": "What is the third self need?",
         "highlightedNodes": [
           "node-4"
         ],
         "highlightedEdges": []
       },
       {
-        "utter": "Sixth, we need to grow. In other words, we need to feel that we are learning and improving every day.",
+        "utter": "We need to feel important, that what we do matters.",
+        "highlightedNodes": [
+          "node-4"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We have 3 group needs.",
+        "highlightedNodes": [
+          "group-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What is the first group need?",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to try new things, to feel excitement.",
+        "highlightedNodes": [
+          "node-0"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What is the second group need?",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to connect with others, to feel that we are close to someone.",
+        "highlightedNodes": [
+          "node-3"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "What is the third group need?",
+        "highlightedNodes": [
+          "node-5"
+        ],
+        "highlightedEdges": []
+      },
+      {
+        "utter": "We need to contribute, to feel that we are helping others.",
         "highlightedNodes": [
           "node-5"
         ],
