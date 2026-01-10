@@ -1,5 +1,9 @@
 # wishlist
 
+# m4c
+- Support editing the dialog.
+  - When the user press space to play the dialog, then he can press `cmd+enter` to edit the current dialog step, or press `cmd+backspace` to delete the current dialog step (instead of deleting the diagram).
+
 # m4b
 - Support entering text for nodes that has children, when you press enter on a node that has children, it should open a text modal to enter the text.
   - Render it as text at the upper border of the node, centered.

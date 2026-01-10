@@ -20,6 +20,7 @@ let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
 let drawingStartNode = null;
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 let currentNarrativeIndex = -1; // For playback
+let editingNarrativeIndex = -1; // For editing existing step
 let hoveredEdgeId = null;
 let selectedEdgeIds = []; // Multi-selection for edges
 let selectedNodeIds = []; // Multi-selection for nodes
@@ -432,7 +433,11 @@ function handleInput(e) {
 
     if (e.key === 'Enter' && e.metaKey) {
       e.preventDefault();
-      startNarrativeEditing();
+      if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
+        startNarrativeEditing(currentNarrativeIndex);
+      } else {
+        startNarrativeEditing();
+      }
     }
 
     if (e.key === 'a') {
@@ -454,6 +459,21 @@ function handleInput(e) {
     if (e.key === 'Backspace') {
       if (e.metaKey) {
         e.preventDefault();
+        if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
+          narrative.splice(currentNarrativeIndex, 1);
+          if (currentNarrativeIndex >= narrative.length) {
+            currentNarrativeIndex = narrative.length - 1;
+          }
+          updateNarrationBanner();
+          saveDiagramToLocalStorage();
+          render();
+          if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
+            speak(narrative[currentNarrativeIndex].utter);
+          } else {
+            speak("");
+          }
+          return;
+        }
         if (confirm('Delete this diagram from localStorage and start fresh?')) {
           localStorage.removeItem(diagramId);
           window.location.reload();
@@ -972,9 +992,14 @@ function cancelEditing() {
   render();
 }
 
-function startNarrativeEditing() {
+function startNarrativeEditing(index = -1) {
   mode = 'edit-narrative';
-  narrativeTextArea.value = '';
+  editingNarrativeIndex = index;
+  if (index >= 0 && index < narrative.length) {
+    narrativeTextArea.value = narrative[index].utter;
+  } else {
+    narrativeTextArea.value = '';
+  }
   narrativeModal.classList.add('active');
   narrativeTextArea.focus();
 }
@@ -982,22 +1007,29 @@ function startNarrativeEditing() {
 function saveNarrativeStep() {
   const text = narrativeTextArea.value.trim();
   if (text) {
-    let highlightedNodes = [...selectedNodeIds];
-    let highlightedEdges = [...selectedEdgeIds];
-
-    // If nothing is selected, default to the node at the cursor if it exists
-    if (highlightedNodes.length === 0 && highlightedEdges.length === 0) {
-      const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
-      if (node) {
-        highlightedNodes.push(node.id);
+    if (editingNarrativeIndex >= 0 && editingNarrativeIndex < narrative.length) {
+      narrative[editingNarrativeIndex].utter = text;
+      if (editingNarrativeIndex === currentNarrativeIndex) {
+        speak(text);
       }
-    }
+    } else {
+      let highlightedNodes = [...selectedNodeIds];
+      let highlightedEdges = [...selectedEdgeIds];
 
-    narrative.push({
-      utter: text,
-      highlightedNodes: highlightedNodes,
-      highlightedEdges: highlightedEdges
-    });
+      // If nothing is selected, default to the node at the cursor if it exists
+      if (highlightedNodes.length === 0 && highlightedEdges.length === 0) {
+        const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+        if (node) {
+          highlightedNodes.push(node.id);
+        }
+      }
+
+      narrative.push({
+        utter: text,
+        highlightedNodes: highlightedNodes,
+        highlightedEdges: highlightedEdges
+      });
+    }
   }
   saveDiagramToLocalStorage();
   cancelNarrativeEditing();
@@ -1005,6 +1037,7 @@ function saveNarrativeStep() {
 
 function cancelNarrativeEditing() {
   mode = 'navigate';
+  editingNarrativeIndex = -1;
   narrativeModal.classList.remove('active');
   narrativeTextArea.value = '';
   render();
