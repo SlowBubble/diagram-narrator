@@ -338,12 +338,34 @@ function drawNodeGroup(group, nodeMap, isHighlighted) {
   const info = nodeMap[group.id];
   if (!info) return;
 
-  const padding = 40;
+  const x = info.centerX - info.width / 2;
+  const y = info.centerY - info.height / 2;
+  const w = info.width;
+  const h = info.height;
+
   ctx.strokeStyle = isHighlighted ? "#ff0000" : "#000000";
   ctx.lineWidth = isHighlighted ? 8 : 4;
   ctx.setLineDash([20, 10]);
-  ctx.strokeRect(info.centerX - info.width / 2, info.centerY - info.height / 2, info.width, info.height);
+  ctx.strokeRect(x, y, w, h);
   ctx.setLineDash([]);
+
+  if (group.text) {
+    ctx.font = `bold ${FONT_SIZE * 0.8}px Inter, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const textX = info.centerX;
+    const textY = y; // Upper border
+
+    // White shading (outline) to make it look floating above border
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 16;
+    ctx.lineJoin = "round";
+    ctx.strokeText(group.text, textX, textY);
+
+    ctx.fillStyle = isHighlighted ? "#ff0000" : "#000000";
+    ctx.fillText(group.text, textX, textY);
+  }
 }
 
 function drawSelfLoop(node, isHighlighted, w, h, isDashed = false) {

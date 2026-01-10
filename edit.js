@@ -917,21 +917,30 @@ narrativeTextArea.addEventListener('keydown', (e) => {
 
 function startEditing() {
   mode = 'edit-text';
-  const node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
-  nodeTextArea.value = node ? node.text : '';
+  let node;
+  if (selectedNodeIds.length === 1) {
+    node = nodes.find(n => n.id === selectedNodeIds[0]);
+  } else {
+    node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+  }
+  nodeTextArea.value = node ? node.text || "" : '';
   textModal.classList.add('active');
   nodeTextArea.focus();
 }
 
 function saveNodeText() {
   const text = nodeTextArea.value.trim();
+  let node;
+  if (selectedNodeIds.length === 1) {
+    node = nodes.find(n => n.id === selectedNodeIds[0]);
+  } else {
+    node = nodes.find(n => n.x === cursor.x && n.y === cursor.y);
+  }
+
   if (text) {
-    // Find existing or create new
-    const existingIdx = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
-    if (existingIdx >= 0) {
-      nodes[existingIdx].text = text;
+    if (node) {
+      node.text = text;
     } else {
-      // Find a safe ID. "node-N"
       let idNum = 0;
       while (nodes.some(n => n.id === `node-${idNum}`)) {
         idNum++;
@@ -940,16 +949,16 @@ function saveNodeText() {
       nodes.push({ id, text, x: cursor.x, y: cursor.y });
     }
   } else {
-    // If empty, remove the node
-    nodes = nodes.filter(n => !(n.x === cursor.x && n.y === cursor.y));
-    // Also remove connected edges
-    // Edges connected to this node should be removed or made invalid?
-    // Let's filter them out for correctness
-    // We need to know the ID of the removed node, but we might not have it easily if it was new.
-    // If logic works correctly, an existing node has an ID.
-    // Since we just filtered logic above:
-    // Actually, getting the ID of the node at cursor BEFORE filtering would be better.
-    // But since we are here, let's just do a clean pass on edges in render or just keep simple.
+    if (node) {
+      if (node.children) {
+        node.text = "";
+      } else {
+        nodes = nodes.filter(n => n.id !== node.id);
+        edges = edges.filter(e => e.start !== node.id && e.end !== node.id);
+        if (drawingStartNode && drawingStartNode.id === node.id) drawingStartNode = null;
+        selectedNodeIds = selectedNodeIds.filter(id => id !== node.id);
+      }
+    }
   }
 
   saveDiagramToLocalStorage();
@@ -1305,11 +1314,34 @@ function drawNodeGroup(group, nodeMap, isSelected, isHighlighted) {
   const info = nodeMap[group.id];
   if (!info) return;
 
+  const x = info.centerX - info.width / 2;
+  const y = info.centerY - info.height / 2;
+  const w = info.width;
+  const h = info.height;
+
   ctx.strokeStyle = isSelected ? "#0000ff" : (isHighlighted ? "#ff0000" : "#000000");
   ctx.lineWidth = isSelected || isHighlighted ? 8 : 4;
   ctx.setLineDash([20, 10]);
-  ctx.strokeRect(info.centerX - info.width / 2, info.centerY - info.height / 2, info.width, info.height);
+  ctx.strokeRect(x, y, w, h);
   ctx.setLineDash([]);
+
+  if (group.text) {
+    ctx.font = `bold ${FONT_SIZE * 0.8}px Inter, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const textX = info.centerX;
+    const textY = y; // Upper border
+
+    // White shading (outline) to make it look floating above border
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 16;
+    ctx.lineJoin = "round";
+    ctx.strokeText(group.text, textX, textY);
+
+    ctx.fillStyle = isHighlighted ? "#ff0000" : "#000000";
+    ctx.fillText(group.text, textX, textY);
+  }
 }
 
 // Helper functions for Arrow Drawing

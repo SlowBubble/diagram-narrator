@@ -1,5 +1,10 @@
 # wishlist
 
+# m4b
+- Support entering text for nodes that has children, when you press enter on a node that has children, it should open a text modal to enter the text.
+  - Render it as text at the upper border of the node, centered.
+  - The text needs to have white shading to make it look like it's floating above the border.
+
 # m4a
 - For index.html, create a query param canto=1
   - When this is set, then only show the canto diagrams, and use a cantonese voice for utterance.
