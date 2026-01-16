@@ -1,5 +1,10 @@
 # wishlist
 
+# m5d
+- ai feature: in edit, when I press `i`, open a text modal to enter the instruction to generate the json for a narrated diagram, using diagrams.js as examples.
+  - Implementation: use this to set up ai logic sdk: https://firebase.google.com/docs/ai-logic/get-started?platform=web&authuser=0&api=dev#add-sdk
+  - Then create a prompt to generate the json
+  - Add logic to parse the json and update the diagram
 # m5c
 - Storage format: let's call the unit of storage a "project", which has 2 fields
   - diagram: the diagram JSON

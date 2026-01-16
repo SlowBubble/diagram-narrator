@@ -4,9 +4,10 @@ const ctx = canvas.getContext('2d');
 import UndoManager from './undo.js';
 const undoManager = new UndoManager();
 
-import { db, auth } from './firebase-config.js';
-import { doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { app, db, auth } from './firebase-config.js';
+import { doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-ai.js";
 
 const NODE_WIDTH = 400;
 const NODE_HEIGHT = 200;
@@ -20,7 +21,7 @@ let viewX = 0;
 let viewY = 0;
 let nodes = []; // Array of { id, text, x, y }
 let edges = []; // Array of { id, start, end }
-let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative'
+let mode = 'navigate'; // 'navigate', 'edit-text', 'view-json', 'edit-narrative', 'ai-instruction'
 let drawingStartNode = null;
 let narrative = []; // Array of { utter, highlightedNodes, highlightedEdges }
 let currentNarrativeIndex = -1; // For playback
@@ -140,6 +141,9 @@ const jsonOutput = document.getElementById('json-output');
 const narrativeModal = document.getElementById('narrative-modal');
 const narrativeTextArea = document.getElementById('narrative-text');
 const narrationBanner = document.getElementById('narration-banner');
+const aiModal = document.getElementById('ai-modal');
+const aiInstructionArea = document.getElementById('ai-instruction');
+const aiLoading = document.getElementById('ai-loading');
 
 // Initialize
 async function init() {
@@ -619,6 +623,11 @@ async function handleInput(e) {
       }
     }
 
+    if (e.key === 'i') {
+      e.preventDefault();
+      startAiInstruction();
+    }
+
     render();
   } else if (mode === 'edit-text') {
     // Modal handles focus
@@ -627,6 +636,8 @@ async function handleInput(e) {
       closeJson();
     }
   } else if (mode === 'edit-narrative') {
+    // Modal handles focus
+  } else if (mode === 'ai-instruction') {
     // Modal handles focus
   }
 }
@@ -956,6 +967,27 @@ narrativeTextArea.addEventListener('keydown', (e) => {
   }
 });
 
+aiInstructionArea.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (!e.metaKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      generateDiagramFromAi();
+    } else {
+      e.preventDefault();
+      const start = aiInstructionArea.selectionStart;
+      const end = aiInstructionArea.selectionEnd;
+      const value = aiInstructionArea.value;
+      aiInstructionArea.value = value.substring(0, start) + "\n" + value.substring(end);
+      aiInstructionArea.selectionStart = aiInstructionArea.selectionEnd = start + 1;
+    }
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    e.stopPropagation();
+    cancelAiInstruction();
+  }
+});
+
 function startEditing() {
   mode = 'edit-text';
   let node;
@@ -1062,6 +1094,109 @@ function cancelNarrativeEditing() {
   narrativeModal.classList.remove('active');
   narrativeTextArea.value = '';
   render();
+}
+
+function startAiInstruction() {
+  mode = 'ai-instruction';
+  aiInstructionArea.value = '';
+  aiModal.style.display = 'flex';
+  aiInstructionArea.focus();
+}
+
+function cancelAiInstruction() {
+  aiModal.style.display = 'none';
+  mode = 'navigate';
+}
+
+async function generateDiagramFromAi() {
+  const instruction = aiInstructionArea.value.trim();
+  if (!instruction) return;
+
+  aiLoading.style.display = 'block';
+  aiInstructionArea.disabled = true;
+
+  try {
+    const ai = getAI(app, { backend: new GoogleAIBackend() });
+    const model = getGenerativeModel(ai, { model: "gemini-2.5-flash" });
+
+    const systemPrompt = `You are an expert at creating narrated diagrams. 
+Generate a JSON object for a diagram based on the user's instruction.
+The output MUST be ONLY valid JSON.
+
+JSON Structure:
+{
+  "diagramId": "string",
+  "nodes": [
+    { "id": "node-0", "text": "...", "x": number, "y": number },
+    { "id": "group-0", "children": ["node-0", ...] }
+  ],
+  "edges": [
+    { "id": "edge-0", "start": "node-id", "end": "node-id", "dashed": boolean }
+  ],
+  "narrative": [
+    { "utter": "...", "highlightedNodes": ["id", ...], "highlightedEdges": ["id", ...] }
+  ]
+}
+
+- x and y are grid coordinates (0, 1, 2, ...). 
+- highlightedNodes and highlightedEdges should use IDs defined in nodes and edges.
+- Narrative steps should explain the diagram step by step.
+
+Example:
+Instruction: "How to make a sandwich"
+JSON:
+{
+  "diagramId": "sandwich-making",
+  "nodes": [
+    { "id": "bread", "text": "Bread", "x": 0, "y": 0 },
+    { "id": "filling", "text": "Filling", "x": 1, "y": 0 },
+    { "id": "sandwich", "text": "Sandwich", "x": 1, "y": 1 }
+  ],
+  "edges": [
+    { "id": "e1", "start": "bread", "end": "sandwich" },
+    { "id": "e2", "start": "filling", "end": "sandwich" }
+  ],
+  "narrative": [
+    { "utter": "To make a sandwich, you start with bread.", "highlightedNodes": ["bread"] },
+    { "utter": "Then you add the filling.", "highlightedNodes": ["filling"] },
+    { "utter": "Put them together, and you have a sandwich!", "highlightedNodes": ["sandwich"], "highlightedEdges": ["e1", "e2"] }
+  ]
+}
+`;
+
+    const result = await model.generateContent(`${systemPrompt}\n\nInstruction: "${instruction}"\nJSON:`);
+    const response = await result.response;
+    let text = response.text();
+
+    // Clean up markdown if AI includes it
+    if (text.startsWith("```json")) {
+      text = text.substring(7, text.lastIndexOf("```"));
+    } else if (text.startsWith("```")) {
+      text = text.substring(3, text.lastIndexOf("```"));
+    }
+
+    const diagram = JSON.parse(text);
+
+    // Update state
+    undoManager.push(getCurrentState());
+
+    nodes = diagram.nodes || [];
+    edges = diagram.edges || [];
+    narrative = diagram.narrative || [];
+    diagramId = diagram.diagramId || `ai-gen-${Date.now()}`;
+    lastEdited = Date.now();
+
+    saveDiagramToFirestore();
+    render();
+    cancelAiInstruction();
+
+  } catch (error) {
+    console.error("AI Generation failed:", error);
+    alert("Failed to generate diagram: " + error.message);
+  } finally {
+    aiLoading.style.display = 'none';
+    aiInstructionArea.disabled = false;
+  }
 }
 
 function showJson() {
