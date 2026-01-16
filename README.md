@@ -1,5 +1,35 @@
 # wishlist
 
+# m5a
+Move away from local storage and use firestore + web hosting.
+
+1: Start with setup (I have run `npm install firebase` already). Here is the setup instruction:
+```
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAAG4cgpGXTDFdKxCwxpEiIm0xsjKDdy3I",
+  authDomain: "diagram-flow.firebaseapp.com",
+  projectId: "diagram-flow",
+  storageBucket: "diagram-flow.firebasestorage.app",
+  messagingSenderId: "701657640541",
+  appId: "1:701657640541:web:fa9d373423f009c60627b4",
+  measurementId: "G-RJZ7XPTE4Z"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+```
+
+2: Replace the use of (writing/reading) localStorage with firestore.
+
 # m4c
 - Support editing the dialog.
   - When the user press space to play the dialog, then he can press `cmd+enter` to edit the current dialog step, or press `cmd+backspace` to delete the current dialog step (instead of deleting the diagram).
