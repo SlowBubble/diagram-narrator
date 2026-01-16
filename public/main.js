@@ -1,42 +1,40 @@
 import { diagrams as staticDiagrams } from './diagrams.js';
 import { diagrams as cantoDiagrams } from './cantoDiagrams.js';
+import { db } from './firebase-config.js';
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const isCanto = urlParams.get('canto') === '1';
 
-// Load diagrams from localStorage and combine with static diagrams
-function loadDiagrams() {
+// Load diagrams from Firestore and combine with static diagrams
+async function loadDiagrams() {
   if (isCanto) {
     return cantoDiagrams;
   }
 
   const localDiagrams = [];
 
-  // Iterate through localStorage to find all diagrams
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    try {
-      const item = localStorage.getItem(key);
-      const parsed = JSON.parse(item);
-
+  try {
+    const querySnapshot = await getDocs(collection(db, "diagrams"));
+    querySnapshot.forEach((doc) => {
+      const parsed = doc.data();
       // Check if this looks like a diagram (has diagramId and lastEdited)
       if (parsed && parsed.diagramId && parsed.lastEdited !== undefined) {
         localDiagrams.push(parsed);
       }
-    } catch (e) {
-      // Skip items that aren't valid JSON or diagrams
-      continue;
-    }
+    });
+  } catch (e) {
+    console.error("Error loading diagrams from Firestore:", e);
   }
 
   // Sort by most recent lastEdited (descending)
   localDiagrams.sort((a, b) => b.lastEdited - a.lastEdited);
 
-  // Combine: localStorage diagrams first, then static diagrams
+  // Combine: firestore diagrams first, then static diagrams
   return [...localDiagrams, ...staticDiagrams];
 }
 
-const diagrams = loadDiagrams();
+let diagrams = [];
 console.log('Loaded diagrams:', diagrams);
 
 let currentDiagramIndex = 0;
@@ -51,7 +49,10 @@ const GRID_X = 600;
 const GRID_Y = 350;
 const FONT_SIZE = 56;
 
-function init() {
+async function init() {
+  diagrams = await loadDiagrams();
+  console.log('Loaded diagrams:', diagrams);
+
   if (isCanto) {
     document.title = "圖表講述";
     document.documentElement.lang = "zh-HK";

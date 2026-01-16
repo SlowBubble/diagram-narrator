@@ -1,8 +1,8 @@
 # wishlist
 
 # m5a
-Move away from local storage and use firestore + web hosting.
-
+Move away from local storage and use firestore.
+0: move the relevant files to public folder
 1: Start with setup (I have run `npm install firebase` already). Here is the setup instruction:
 ```
 // Import the functions you need from the SDKs you need

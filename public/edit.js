@@ -4,6 +4,9 @@ const ctx = canvas.getContext('2d');
 import UndoManager from './undo.js';
 const undoManager = new UndoManager();
 
+import { db } from './firebase-config.js';
+import { doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 const NODE_WIDTH = 400;
 const NODE_HEIGHT = 200;
 const GRID_X = 600;
@@ -66,7 +69,7 @@ function finishArrowDrawing() {
   };
   edges.push(newEdge);
   drawingStartNode = null;
-  saveDiagramToLocalStorage();
+  saveDiagramToFirestore();
 }
 
 function drawSelfLoop(node, isHighlighted, w, h, isDashed = false, isGhost = false, specialColor = null) {
@@ -129,12 +132,12 @@ const narrativeTextArea = document.getElementById('narrative-text');
 const narrationBanner = document.getElementById('narration-banner');
 
 // Initialize
-function init() {
-  // Check if we should load an existing diagram from localStorage
+async function init() {
+  // Check if we should load an existing diagram from firestore
   const urlParams = new URLSearchParams(window.location.search);
   const idParam = urlParams.get('id');
   if (idParam) {
-    loadDiagramFromLocalStorage(idParam);
+    await loadDiagramFromFirestore(idParam);
   }
 
   window.addEventListener('resize', handleResize);
@@ -194,7 +197,7 @@ function handleResize() {
   render();
 }
 
-function handleInput(e) {
+async function handleInput(e) {
   if (mode === 'navigate') {
     const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
 
@@ -260,7 +263,7 @@ function handleInput(e) {
               cursor.x += dx * offset;
               cursor.y += dy * offset;
               updateView();
-              saveDiagramToLocalStorage();
+              saveDiagramToFirestore();
               render();
             }
           }
@@ -416,7 +419,7 @@ function handleInput(e) {
         }
         nodes.push({ id: `group-${idNum}`, children: [...selectedNodeIds] });
         selectedNodeIds = []; // Clear selection after grouping
-        saveDiagramToLocalStorage();
+        saveDiagramToFirestore();
         render();
         return;
       }
@@ -465,7 +468,7 @@ function handleInput(e) {
             currentNarrativeIndex = narrative.length - 1;
           }
           updateNarrationBanner();
-          saveDiagramToLocalStorage();
+          saveDiagramToFirestore();
           render();
           if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
             speak(narrative[currentNarrativeIndex].utter);
@@ -474,8 +477,8 @@ function handleInput(e) {
           }
           return;
         }
-        if (confirm('Delete this diagram from localStorage and start fresh?')) {
-          localStorage.removeItem(diagramId);
+        if (confirm('Delete this diagram from cloud storage and start fresh?')) {
+          await deleteDoc(doc(db, "diagrams", diagramId));
           window.location.reload();
         }
         return;
@@ -505,7 +508,7 @@ function handleInput(e) {
         selectedNodeIds = [];
         selectedEdgeIds = [];
         selectedEdgeId = null;
-        saveDiagramToLocalStorage();
+        saveDiagramToFirestore();
       } else {
         const nodeIndex = nodes.findIndex(n => n.x === cursor.x && n.y === cursor.y);
         if (nodeIndex >= 0) {
@@ -523,7 +526,7 @@ function handleInput(e) {
           });
           // Remove group nodes that have 1 or 0 children
           nodes = nodes.filter(n => !n.children || n.children.length > 1);
-          saveDiagramToLocalStorage();
+          saveDiagramToFirestore();
         }
       }
     }
@@ -593,7 +596,7 @@ function handleInput(e) {
             edge.dashed = !edge.dashed;
           }
         });
-        saveDiagramToLocalStorage();
+        saveDiagramToFirestore();
         render();
       }
     }
@@ -948,7 +951,7 @@ function startEditing() {
   nodeTextArea.focus();
 }
 
-function saveNodeText() {
+async function saveNodeText() {
   const text = nodeTextArea.value.trim();
   let node;
   if (selectedNodeIds.length === 1) {
@@ -981,7 +984,7 @@ function saveNodeText() {
     }
   }
 
-  saveDiagramToLocalStorage();
+  await saveDiagramToFirestore();
   cancelEditing();
 }
 
@@ -1004,7 +1007,7 @@ function startNarrativeEditing(index = -1) {
   narrativeTextArea.focus();
 }
 
-function saveNarrativeStep() {
+async function saveNarrativeStep() {
   const text = narrativeTextArea.value.trim();
   if (text) {
     if (editingNarrativeIndex >= 0 && editingNarrativeIndex < narrative.length) {
@@ -1031,7 +1034,7 @@ function saveNarrativeStep() {
       });
     }
   }
-  saveDiagramToLocalStorage();
+  await saveDiagramToFirestore();
   cancelNarrativeEditing();
 }
 
@@ -1473,11 +1476,12 @@ function getRectIntersection(x1, y1, x2, y2, w, h) {
   return { x: ix, y: iy };
 }
 
-function loadDiagramFromLocalStorage(id) {
+async function loadDiagramFromFirestore(id) {
   try {
-    const stored = localStorage.getItem(id);
-    if (stored) {
-      const diagram = JSON.parse(stored);
+    const docRef = doc(db, "diagrams", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const diagram = docSnap.data();
       if (diagram.diagramId) {
         diagramId = diagram.diagramId;
       }
@@ -1496,13 +1500,14 @@ function loadDiagramFromLocalStorage(id) {
 
       // Initialize undo stack with the loaded state
       undoManager.push(getCurrentState());
+      render();
     }
   } catch (e) {
-    console.error('Failed to load diagram from localStorage:', e);
+    console.error('Failed to load diagram from Firestore:', e);
   }
 }
 
-function saveDiagramToLocalStorage() {
+async function saveDiagramToFirestore() {
   // Don't save empty diagrams
   if (nodes.length === 0 && edges.length === 0 && narrative.length === 0) {
     return;
@@ -1526,7 +1531,11 @@ function saveDiagramToLocalStorage() {
     edges: edges,
     narrative: narrative
   };
-  localStorage.setItem(diagramId, JSON.stringify(diagram));
+  try {
+    await setDoc(doc(db, "diagrams", diagramId), diagram);
+  } catch (e) {
+    console.error("Error saving to Firestore:", e);
+  }
 }
 
 function getCurrentState() {
@@ -1544,7 +1553,7 @@ function getCurrentState() {
   };
 }
 
-function applyState(state) {
+async function applyState(state) {
   nodes = state.nodes;
   edges = state.edges;
   narrative = state.narrative;
@@ -1556,7 +1565,7 @@ function applyState(state) {
   selectedEdgeId = state.selectedEdgeId;
   isNodeSelected = state.isNodeSelected;
 
-  // Save to local storage without pushing to undo stack again
+  // Save to Firestore without pushing to undo stack again
   lastEdited = Date.now();
   const diagram = {
     diagramId,
@@ -1565,7 +1574,11 @@ function applyState(state) {
     edges: edges,
     narrative: narrative
   };
-  localStorage.setItem(diagramId, JSON.stringify(diagram));
+  try {
+    await setDoc(doc(db, "diagrams", diagramId), diagram);
+  } catch (e) {
+    console.error("Error saving to Firestore (undo/redo):", e);
+  }
   render();
 }
 
