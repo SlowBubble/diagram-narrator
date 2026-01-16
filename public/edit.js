@@ -1142,7 +1142,11 @@ JSON Structure:
 - highlightedNodes and highlightedEdges should use IDs defined in nodes and edges.
 - Keep the node text short (leave the details to the narrative).
 - If the node text is longer than 15 characters, add "\\n" to break the text into multiple lines.
-- Design the narrative to be Q&A driven. Each step should answer the question from the previous step (if any) and then pose a new premise or question that leads to the next part of the diagram.
+- Design the narrative to be Q&A driven. Each step should either pose a question or answer the question from the previous step.
+  - Only provide full context for the very first step's question.
+  - Subsequent questions should use very short transitions to link from the previous answer (e.g., "After that...", "With those...").
+  - Keep all steps concise, but ensure they are complete, natural-sounding sentences that are easy to say.
+  - Don't do both (answering a question or posing a question) in the same step.
 - If an existing diagram is provided, update it according to the instructions. Maintain existing IDs if they are still relevant. Return the COMPLETE updated diagram JSON.
 
 Example:
@@ -1161,9 +1165,11 @@ JSON:
   ],
   "narrative": [
     { "utter": "To make a sandwich, what is the first ingredient you need?", "highlightedNodes": ["bread"] },
-    { "utter": "You need bread. Once you have the bread, what do you put inside?", "highlightedNodes": ["filling"] },
-    { "utter": "You add the filling. When you put the filling between the bread, what have you created?", "highlightedNodes": ["sandwich"], "highlightedEdges": ["e1", "e2"] },
-    { "utter": "You've created a sandwich! Enjoy!", "highlightedNodes": ["sandwich"] }
+    { "utter": "You need the bread.", "highlightedNodes": ["bread"] },
+    { "utter": "What else do you need to put inside?", "highlightedNodes": ["filling"] },
+    { "utter": "You need to put in the filling.", "highlightedNodes": ["filling"] },
+    { "utter": "With the filling added, what have you created?", "highlightedNodes": ["sandwich"], "highlightedEdges": ["e1", "e2"] },
+    { "utter": "You have created a sandwich.", "highlightedNodes": ["sandwich"] }
   ]
 }
 `;
