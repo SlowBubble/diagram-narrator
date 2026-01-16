@@ -140,10 +140,9 @@
 <body>
   <div id="app">
     <div class="nav">
-      <a href="index.html">← Back to Viewer</a>
-      <a href="index.html?canto=1">Canto Viewer</a>
+      <a href="index.html">View Diagrams</a>
+      <a href="index.html?canto=1">Canto Diagrams</a>
       <a href="edit.html" id="new-diagram-link" style="display: none;">New Diagram</a>
-      <a href="#" id="signin-link" style="display: none;">Sign In</a>
       <div id="auth-status" style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
         <span id="user-name" style="color: #666; font-size: 14px;"></span>
         <a href="#" id="signout-link" style="display: none; font-size: 14px; color: #ff4444;">Sign Out</a>
@@ -151,8 +150,6 @@
     </div>
 
     <h1>My Diagrams</h1>
-    <p style="color: #666;">View and manage your cloud saved diagrams.</p>
-
     <div class="table-container">
       <table id="storage-table" style="display: none;">
         <thead>
@@ -178,41 +175,44 @@
     import { onAuthStateChanged, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const newDiagramLink = document.getElementById('new-diagram-link');
-    const signinLink = document.getElementById('signin-link');
     const signoutLink = document.getElementById('signout-link');
     const userNameSpan = document.getElementById('user-name');
 
-    // Handle Auth State Changes
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        newDiagramLink.style.display = 'inline';
-        signinLink.style.display = 'none';
-        signoutLink.style.display = 'inline';
-        userNameSpan.textContent = user.displayName;
-        renderTable();
-      } else {
-        newDiagramLink.style.display = 'none';
-        signinLink.style.display = 'inline';
-        signoutLink.style.display = 'none';
-        userNameSpan.textContent = '';
-        // Clear table when signed out
-        document.getElementById('table-body').innerHTML = '';
-        document.getElementById('storage-table').style.display = 'none';
-        document.getElementById('empty-state').style.display = 'block';
-        document.getElementById('empty-state').textContent = 'Please sign in to view your diagrams.';
-      }
-    });
-
-    // Sign In Function
-    signinLink.addEventListener('click', async (e) => {
-      e.preventDefault();
+    async function handleSignIn(e) {
+      if (e) e.preventDefault();
       try {
         await signInWithPopup(auth, googleProvider);
       } catch (error) {
         console.error("Sign-in error:", error);
         alert("Failed to sign in. Please try again.");
       }
+    }
+
+    // Handle Auth State Changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        newDiagramLink.style.display = 'inline';
+        signoutLink.style.display = 'inline';
+        userNameSpan.textContent = user.displayName;
+        renderTable();
+      } else {
+        newDiagramLink.style.display = 'none';
+        signoutLink.style.display = 'none';
+        userNameSpan.textContent = '';
+        // Clear table when signed out
+        document.getElementById('table-body').innerHTML = '';
+        document.getElementById('storage-table').style.display = 'none';
+        const emptyState = document.getElementById('empty-state');
+        emptyState.style.display = 'block';
+        emptyState.innerHTML = `
+          <div style="margin-bottom: 24px; color: #666;">Sign in to save and manage your diagrams in the cloud.</div>
+          <button id="main-signin-btn" class="btn btn-primary" style="padding: 12px 28px; font-size: 16px; cursor: pointer; border: none; font-family: inherit;">Sign In with Google</button>
+        `;
+        document.getElementById('main-signin-btn').addEventListener('click', handleSignIn);
+      }
     });
+
+
 
     // Sign Out Function
     signoutLink.addEventListener('click', async (e) => {
