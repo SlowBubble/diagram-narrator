@@ -1,7 +1,7 @@
 import { diagrams as staticDiagrams } from './diagrams.js';
 import { diagrams as cantoDiagrams } from './cantoDiagrams.js';
 import { db } from './firebase-config.js';
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const isCanto = urlParams.get('canto') === '1';
