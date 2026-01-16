@@ -927,20 +927,17 @@ function updateView() {
 // Text Area specific handling
 nodeTextArea.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
-    if (!e.metaKey) {
-      e.preventDefault();
-      e.stopPropagation();
-      saveNodeText();
-    } else {
-      // For Cmd+Enter, we want a newline. In a textarea, default behavior
-      // for Cmd+Enter is often nothing or submit depending on OS/Browser.
-      // Let's force a newline.
+    if (e.shiftKey) {
       e.preventDefault();
       const start = nodeTextArea.selectionStart;
       const end = nodeTextArea.selectionEnd;
       const value = nodeTextArea.value;
       nodeTextArea.value = value.substring(0, start) + "\n" + value.substring(end);
       nodeTextArea.selectionStart = nodeTextArea.selectionEnd = start + 1;
+    } else {
+      e.preventDefault();
+      e.stopPropagation();
+      saveNodeText();
     }
   } else if (e.key === 'Escape') {
     e.preventDefault();
@@ -952,17 +949,17 @@ nodeTextArea.addEventListener('keydown', (e) => {
 // Narrative Area specific handling
 narrativeTextArea.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
-    if (!e.metaKey) {
-      e.preventDefault();
-      e.stopPropagation();
-      saveNarrativeStep();
-    } else {
+    if (e.shiftKey) {
       e.preventDefault();
       const start = narrativeTextArea.selectionStart;
       const end = narrativeTextArea.selectionEnd;
       const value = narrativeTextArea.value;
       narrativeTextArea.value = value.substring(0, start) + "\n" + value.substring(end);
       narrativeTextArea.selectionStart = narrativeTextArea.selectionEnd = start + 1;
+    } else {
+      e.preventDefault();
+      e.stopPropagation();
+      saveNarrativeStep();
     }
   } else if (e.key === 'Escape') {
     e.preventDefault();
@@ -973,17 +970,17 @@ narrativeTextArea.addEventListener('keydown', (e) => {
 
 aiInstructionArea.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
-    if (!e.metaKey) {
-      e.preventDefault();
-      e.stopPropagation();
-      generateDiagramFromAi();
-    } else {
+    if (e.shiftKey) {
       e.preventDefault();
       const start = aiInstructionArea.selectionStart;
       const end = aiInstructionArea.selectionEnd;
       const value = aiInstructionArea.value;
       aiInstructionArea.value = value.substring(0, start) + "\n" + value.substring(end);
       aiInstructionArea.selectionStart = aiInstructionArea.selectionEnd = start + 1;
+    } else {
+      e.preventDefault();
+      e.stopPropagation();
+      generateDiagramFromAi();
     }
   } else if (e.key === 'Escape') {
     e.preventDefault();
