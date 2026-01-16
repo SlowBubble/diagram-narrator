@@ -1143,6 +1143,7 @@ JSON Structure:
 - Keep the node text short (leave the details to the narrative).
 - If the node text is longer than 15 characters, add "\\n" to break the text into multiple lines.
 - Design the narrative to be Q&A driven. Each step should answer the question from the previous step (if any) and then pose a new premise or question that leads to the next part of the diagram.
+- If an existing diagram is provided, update it according to the instructions. Maintain existing IDs if they are still relevant. Return the COMPLETE updated diagram JSON.
 
 Example:
 Instruction: "How to make a sandwich"
@@ -1167,7 +1168,17 @@ JSON:
 }
 `;
 
-    const result = await model.generateContent(`${systemPrompt}\n\nInstruction: "${instruction}"\nJSON:`);
+    const currentState = getCurrentState();
+    let contextPrompt = "";
+    if (currentState.nodes.length > 0) {
+      contextPrompt = `\n\nExisting Diagram JSON:\n${JSON.stringify({
+        nodes: currentState.nodes,
+        edges: currentState.edges,
+        narrative: currentState.narrative
+      }, null, 2)}`;
+    }
+
+    const result = await model.generateContent(`${systemPrompt}${contextPrompt}\n\nInstruction: "${instruction}"\nJSON:`);
     const response = await result.response;
     let text = response.text();
 
