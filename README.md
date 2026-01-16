@@ -3,8 +3,10 @@
 # m5c
 - Storage format: let's call the unit of storage a "project", which has 2 fields
   - diagram: the diagram JSON
-  - info: the metadata, including the id, owner (user id), lastEdited, createdAt
+  - info: the metadata, including the id, owner (user id), lastEdited, createdAt, isPublic
 - Modify the app logic to use this format.
+  - Add a shortcut in edit (`p`) to toggle the project's public status.
+  - Only show public projects in index.html.
 
 # m5b
 - Use GoogleAuthProvider to sign in

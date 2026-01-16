@@ -4,8 +4,9 @@ const ctx = canvas.getContext('2d');
 import UndoManager from './undo.js';
 const undoManager = new UndoManager();
 
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const NODE_WIDTH = 400;
 const NODE_HEIGHT = 200;
@@ -31,6 +32,15 @@ let selectedEdgeId = null; // Single edge selection (kept for backward compatibi
 let isNodeSelected = true;
 let diagramId = new Date().toISOString(); // Unique ID for this diagram
 let lastEdited = Date.now(); // Timestamp of last edit
+let createdAt = Date.now();
+let isPublic = false;
+let owner = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    owner = user.uid;
+  }
+});
 
 function getOrCreateNode(x, y) {
   let n = nodes.find(node => node.x === x && node.y === y);
@@ -582,6 +592,14 @@ async function handleInput(e) {
         const prevState = undoManager.undo();
         if (prevState) applyState(prevState);
       }
+    }
+
+    if (e.key === 'p') {
+      e.preventDefault();
+      isPublic = !isPublic;
+      saveDiagramToFirestore();
+      alert(`Diagram is now ${isPublic ? 'PUBLIC' : 'PRIVATE'}`);
+      render();
     }
 
     if (e.key === 'd') {
@@ -1481,21 +1499,35 @@ async function loadDiagramFromFirestore(id) {
     const docRef = doc(db, "diagrams", id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      const diagram = docSnap.data();
-      if (diagram.diagramId) {
-        diagramId = diagram.diagramId;
+      const data = docSnap.data();
+      let diagramData;
+
+      // Handle new format: { diagram: { ... }, info: { ... } }
+      if (data.diagram && data.info) {
+        diagramData = data.diagram;
+        diagramId = data.info.id || id;
+        lastEdited = data.info.lastEdited || Date.now();
+        createdAt = data.info.createdAt || Date.now();
+        isPublic = data.info.isPublic || false;
+        owner = data.info.owner || null;
+      } else {
+        // Fallback for old format
+        diagramData = data;
+        diagramId = data.diagramId || id;
+        lastEdited = data.lastEdited || Date.now();
+        createdAt = lastEdited;
+        isPublic = false;
+        owner = null;
       }
-      if (diagram.lastEdited !== undefined) {
-        lastEdited = diagram.lastEdited;
+
+      if (diagramData.nodes) {
+        nodes = diagramData.nodes;
       }
-      if (diagram.nodes) {
-        nodes = diagram.nodes;
+      if (diagramData.edges) {
+        edges = diagramData.edges;
       }
-      if (diagram.edges) {
-        edges = diagram.edges;
-      }
-      if (diagram.narrative) {
-        narrative = diagram.narrative;
+      if (diagramData.narrative) {
+        narrative = diagramData.narrative;
       }
 
       // Initialize undo stack with the loaded state
@@ -1517,22 +1549,31 @@ async function saveDiagramToFirestore() {
   undoManager.push(state);
 
   lastEdited = Date.now();
-  const diagram = {
-    diagramId: diagramId,
-    lastEdited: lastEdited,
-    nodes: nodes.map(n => {
-      const node = { id: n.id };
-      if (n.text !== undefined) node.text = n.text;
-      if (n.x !== undefined) node.x = n.x;
-      if (n.y !== undefined) node.y = n.y;
-      if (n.children) node.children = n.children;
-      return node;
-    }),
-    edges: edges,
-    narrative: narrative
+
+  const project = {
+    diagram: {
+      nodes: nodes.map(n => {
+        const node = { id: n.id };
+        if (n.text !== undefined) node.text = n.text;
+        if (n.x !== undefined) node.x = n.x;
+        if (n.y !== undefined) node.y = n.y;
+        if (n.children) node.children = n.children;
+        return node;
+      }),
+      edges: edges,
+      narrative: narrative
+    },
+    info: {
+      id: diagramId,
+      owner: auth.currentUser ? auth.currentUser.uid : owner,
+      lastEdited: lastEdited,
+      createdAt: createdAt,
+      isPublic: isPublic
+    }
   };
+
   try {
-    await setDoc(doc(db, "diagrams", diagramId), diagram);
+    await setDoc(doc(db, "diagrams", diagramId), project);
   } catch (e) {
     console.error("Error saving to Firestore:", e);
   }
@@ -1567,15 +1608,22 @@ async function applyState(state) {
 
   // Save to Firestore without pushing to undo stack again
   lastEdited = Date.now();
-  const diagram = {
-    diagramId,
-    lastEdited,
-    nodes: nodes,
-    edges: edges,
-    narrative: narrative
+  const project = {
+    diagram: {
+      nodes: nodes,
+      edges: edges,
+      narrative: narrative
+    },
+    info: {
+      id: diagramId,
+      owner: auth.currentUser ? auth.currentUser.uid : owner,
+      lastEdited: lastEdited,
+      createdAt: createdAt,
+      isPublic: isPublic
+    }
   };
   try {
-    await setDoc(doc(db, "diagrams", diagramId), diagram);
+    await setDoc(doc(db, "diagrams", diagramId), project);
   } catch (e) {
     console.error("Error saving to Firestore (undo/redo):", e);
   }

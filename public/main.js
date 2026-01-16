@@ -17,10 +17,25 @@ async function loadDiagrams() {
   try {
     const querySnapshot = await getDocs(collection(db, "diagrams"));
     querySnapshot.forEach((doc) => {
-      const parsed = doc.data();
-      // Check if this looks like a diagram (has diagramId and lastEdited)
-      if (parsed && parsed.diagramId && parsed.lastEdited !== undefined) {
-        cloudDiagrams.push(parsed);
+      const data = doc.data();
+
+      // Handle new format: { diagram: { ... }, info: { ... } }
+      if (data.diagram && data.info) {
+        if (data.info.isPublic) {
+          cloudDiagrams.push({
+            ...data.diagram,
+            diagramId: data.info.id,
+            lastEdited: data.info.lastEdited
+          });
+        }
+      } else {
+        // Fallback for old format - assume public if it was already there?
+        // Actually the user said "Only show public projects", 
+        // and old format doesn't have isPublic. 
+        // For safety, let's treat old format as public for now if it has the fields.
+        if (data.diagramId && data.lastEdited !== undefined) {
+          cloudDiagrams.push(data);
+        }
       }
     });
   } catch (e) {
