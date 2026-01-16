@@ -9,8 +9,8 @@
 
 ### 2. In `edit.js` (edit.html)
 - Added support for loading existing diagrams via `id=` parameter
-- `init()` function checks for `id` parameter and calls `loadDiagramFromLocalStorage()`
-- New `loadDiagramFromLocalStorage()` function restores diagram state from localStorage
+- `init()` function checks for `id` parameter and calls `loadDiagramFromFirestore()`
+- New `loadDiagramFromFirestore()` function restores diagram state from Firestore
 
 ### 3. In `diagrams.js`
 - Added `diagramId` field to all static diagrams with descriptive IDs:
@@ -35,13 +35,13 @@
 ### index.html
 1. When you navigate through diagrams using arrow keys, the URL updates with `?id=<diagramId>`
 2. You can directly access a diagram by visiting `index.html?id=<diagramId>`
-3. For diagrams from localStorage, it uses their unique timestamp-based `diagramId`
+3. For diagrams from Firestore, it uses their unique timestamp-based `diagramId`
 4. For static diagrams, it uses the descriptive `diagramId` from `diagrams.js`
 
 ### edit.html
 1. You can now edit an existing diagram by visiting `edit.html?id=<diagramId>`
-2. The editor will load the diagram from localStorage using the provided `id`
-3. All changes are saved back to localStorage with the same `diagramId`
+2. The editor will load the diagram from Firestore using the provided `id`
+3. All changes are saved back to Firestore with the same `diagramId`
 
 ## Example URLs
 
@@ -68,6 +68,6 @@
 - **Cmd+Enter** - Add narrative step
 - **Backspace** - Delete node or edge
 - **Space** - Play narrative
-- **Cmd+Space** - Delete diagram from localStorage
+- **Cmd+Backspace** - Delete diagram from Firestore (or Cmd+Backspace while playing narrative to delete step)
 - **Escape** - Return to start of narration
 - **`v`** - Switch to view mode for current diagram

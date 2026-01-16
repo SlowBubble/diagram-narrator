@@ -1,5 +1,8 @@
 # wishlist
 
+# m5b
+- Use GoogleAuthProvider to sign in
+  - In the storage.html, if not sign in, add a sign in at the top (instead of "New Diagram"). If sign in, then show "New Diagram".
 # m5a
 Move away from local storage and use firestore.
 0: move the relevant files to public folder
@@ -28,7 +31,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 ```
 
-2: Replace the use of (writing/reading) localStorage with firestore.
+2: Use firestore.
 
 # m4c
 - Support editing the dialog.
@@ -45,7 +48,7 @@ const analytics = getAnalytics(app);
   - Create cantoDiagrams.js which translates all the diagrams.js into cantonese text and cantonese dialogs.
 
 # m3j
-- Add a storage.html page that allows you to view the diagrams in local storage in a table along with the last edited date, sorted by most recent.
+- Add a storage.html page that allows you to view the diagrams in firestore in a table along with the last edited date, sorted by most recent.
   - Add a link to take me to the edit.html page.
 
 # m3i (DONE)
@@ -79,15 +82,13 @@ const analytics = getAnalytics(app);
 - When `a` is pressed, i.e. in edge drawing mode, if I mouse click on a node, then finish drawing the edge with that node as the end node.
 
 # m3b
-- In index.html, when iterating through diagrams in local storage, use id=diagramId instead of diagram= 
+- In index.html, when iterating through diagrams, use id=diagramId instead of diagram= 
 - And in edit.html, allow accessing an existing diagram via id=diagramId also.
 
 # m3a
-- In edit.html, add a diagramId field to the diagram JSON using the current date time string
-  - Also have a lastEdited field that is the date time in number form.
-  - Automatically save the JSON in localStorage whenever you make a change to the diagram, and update lastEdited using the diagramId as the key and the stringifid JSON as the value. But don't save the empty diagram; only save when something is added to it.
-  - `cmd+backspace` will delete the current diagram from local storage (add a confirm prompt), and then refresh edit.html to a new diagram
-- In index.html, first load all the diagrams from local storage (sorted by most to least recent lastEdited field)
+- Automatically save the JSON in firestore whenever you make a change to the diagram, and update lastEdited using the diagramId as the key. But don't save the empty diagram; only save when something is added to it.
+  - `cmd+backspace` will delete the current diagram (add a confirm prompt), and then refresh edit.html to a new diagram
+- In index.html, first load all the diagrams (sorted by most to least recent lastEdited field)
   - After that append the existing diagrams in diagrams.js.
 
 # m2n

@@ -12,7 +12,7 @@ async function loadDiagrams() {
     return cantoDiagrams;
   }
 
-  const localDiagrams = [];
+  const cloudDiagrams = [];
 
   try {
     const querySnapshot = await getDocs(collection(db, "diagrams"));
@@ -20,7 +20,7 @@ async function loadDiagrams() {
       const parsed = doc.data();
       // Check if this looks like a diagram (has diagramId and lastEdited)
       if (parsed && parsed.diagramId && parsed.lastEdited !== undefined) {
-        localDiagrams.push(parsed);
+        cloudDiagrams.push(parsed);
       }
     });
   } catch (e) {
@@ -28,10 +28,10 @@ async function loadDiagrams() {
   }
 
   // Sort by most recent lastEdited (descending)
-  localDiagrams.sort((a, b) => b.lastEdited - a.lastEdited);
+  cloudDiagrams.sort((a, b) => b.lastEdited - a.lastEdited);
 
   // Combine: firestore diagrams first, then static diagrams
-  return [...localDiagrams, ...staticDiagrams];
+  return [...cloudDiagrams, ...staticDiagrams];
 }
 
 let diagrams = [];
