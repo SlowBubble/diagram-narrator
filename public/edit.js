@@ -1140,7 +1140,9 @@ JSON Structure:
 
 - x and y are grid coordinates (0, 1, 2, ...). 
 - highlightedNodes and highlightedEdges should use IDs defined in nodes and edges.
-- Narrative steps should explain the diagram step by step.
+- Keep the node text short (leave the details to the narrative).
+- If the node text is longer than 15 characters, add "\\n" to break the text into multiple lines.
+- Design the narrative to be Q&A driven. Each step should answer the question from the previous step (if any) and then pose a new premise or question that leads to the next part of the diagram.
 
 Example:
 Instruction: "How to make a sandwich"
@@ -1150,16 +1152,17 @@ JSON:
   "nodes": [
     { "id": "bread", "text": "Bread", "x": 0, "y": 0 },
     { "id": "filling", "text": "Filling", "x": 1, "y": 0 },
-    { "id": "sandwich", "text": "Sandwich", "x": 1, "y": 1 }
+    { "id": "sandwich", "text": "The Final\\nSandwich", "x": 1, "y": 1 }
   ],
   "edges": [
     { "id": "e1", "start": "bread", "end": "sandwich" },
     { "id": "e2", "start": "filling", "end": "sandwich" }
   ],
   "narrative": [
-    { "utter": "To make a sandwich, you start with bread.", "highlightedNodes": ["bread"] },
-    { "utter": "Then you add the filling.", "highlightedNodes": ["filling"] },
-    { "utter": "Put them together, and you have a sandwich!", "highlightedNodes": ["sandwich"], "highlightedEdges": ["e1", "e2"] }
+    { "utter": "To make a sandwich, what is the first ingredient you need?", "highlightedNodes": ["bread"] },
+    { "utter": "You need bread. Once you have the bread, what do you put inside?", "highlightedNodes": ["filling"] },
+    { "utter": "You add the filling. When you put the filling between the bread, what have you created?", "highlightedNodes": ["sandwich"], "highlightedEdges": ["e1", "e2"] },
+    { "utter": "You've created a sandwich! Enjoy!", "highlightedNodes": ["sandwich"] }
   ]
 }
 `;

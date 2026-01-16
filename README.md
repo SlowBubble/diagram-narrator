@@ -1,5 +1,14 @@
 # wishlist
 
+# m5f
+- When pressing `i`, if there is an existing diagram, then pass the existing json to the ai for context and have it update the diagram.
+
+# m5e
+- Change systemPrompt to help with
+  - Keep the node text short (leave the details to the narrative)
+    - If the node text is longer than 15 characters, add "\n" to break the text into multiple lines.
+  - Design the narrative to be Q&A driven. E.g. "To make a sandwich, what ingredient do you need?"
+
 # m5d
 - ai feature: in edit, when I press `i`, open a text modal to enter the instruction to generate the json for a narrated diagram, using diagrams.js as examples.
   - Implementation: use this to set up ai logic sdk: https://firebase.google.com/docs/ai-logic/get-started?platform=web&authuser=0&api=dev#add-sdk
