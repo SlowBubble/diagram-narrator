@@ -142,14 +142,19 @@
     <div class="nav">
       <a href="index.html">← Back to Viewer</a>
       <a href="index.html?canto=1">Canto Viewer</a>
-      <a href="edit.html">New Diagram</a>
+      <a href="edit.html" id="new-diagram-link" style="display: none;">New Diagram</a>
+      <a href="#" id="signin-link" style="display: none;">Sign In</a>
+      <div id="auth-status" style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+        <span id="user-name" style="color: #666; font-size: 14px;"></span>
+        <a href="#" id="signout-link" style="display: none; font-size: 14px; color: #ff4444;">Sign Out</a>
+      </div>
     </div>
 
     <h1>My Diagrams</h1>
     <p style="color: #666;">View and manage your cloud saved diagrams.</p>
 
     <div class="table-container">
-      <table id="storage-table">
+      <table id="storage-table" style="display: none;">
         <thead>
           <tr>
             <th>Diagram Name / ID</th>
@@ -161,15 +166,63 @@
           <!-- Loaded via JS -->
         </tbody>
       </table>
-      <div id="empty-state" class="empty-state" style="display: none;">
-        No diagrams found.
+      <div id="empty-state" class="empty-state">
+        Loading...
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { db } from './firebase-config.js';
+    import { db, auth, googleProvider } from './firebase-config.js';
     import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { onAuthStateChanged, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const newDiagramLink = document.getElementById('new-diagram-link');
+    const signinLink = document.getElementById('signin-link');
+    const signoutLink = document.getElementById('signout-link');
+    const userNameSpan = document.getElementById('user-name');
+
+    // Handle Auth State Changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        newDiagramLink.style.display = 'inline';
+        signinLink.style.display = 'none';
+        signoutLink.style.display = 'inline';
+        userNameSpan.textContent = user.displayName;
+        renderTable();
+      } else {
+        newDiagramLink.style.display = 'none';
+        signinLink.style.display = 'inline';
+        signoutLink.style.display = 'none';
+        userNameSpan.textContent = '';
+        // Clear table when signed out
+        document.getElementById('table-body').innerHTML = '';
+        document.getElementById('storage-table').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'block';
+        document.getElementById('empty-state').textContent = 'Please sign in to view your diagrams.';
+      }
+    });
+
+    // Sign In Function
+    signinLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (error) {
+        console.error("Sign-in error:", error);
+        alert("Failed to sign in. Please try again.");
+      }
+    });
+
+    // Sign Out Function
+    signoutLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Sign-out error:", error);
+      }
+    });
 
     async function loadCloudDiagrams() {
       const diagrams = [];
@@ -199,6 +252,10 @@
     }
 
     window.deleteDiagram = async function (id) {
+      if (!auth.currentUser) {
+        alert("You must be signed in to delete diagrams.");
+        return;
+      }
       if (confirm('Are you sure you want to delete this diagram from cloud storage?')) {
         try {
           await deleteDoc(doc(db, "diagrams", id));
@@ -211,6 +268,8 @@
     }
 
     async function renderTable() {
+      if (!auth.currentUser) return;
+
       const diagrams = await loadCloudDiagrams();
       const tableBody = document.getElementById('table-body');
       const table = document.getElementById('storage-table');
@@ -219,6 +278,7 @@
       if (diagrams.length === 0) {
         table.style.display = 'none';
         emptyState.style.display = 'block';
+        emptyState.textContent = 'No diagrams found.';
         return;
       }
 
@@ -253,10 +313,6 @@
         tableBody.appendChild(tr);
       });
     }
-
-    window.onload = renderTable;
-    // Also call it immediately just in case window.onload already fired or doesn't behave as expected in some browsers with modules
-    renderTable();
   </script>
 </body>
 

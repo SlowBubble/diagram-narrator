@@ -1,5 +1,11 @@
 # wishlist
 
+# m5c
+- Storage format: let's call the unit of storage a "project", which has 2 fields
+  - diagram: the diagram JSON
+  - info: the metadata, including the id, owner (user id), lastEdited, createdAt
+- Modify the app logic to use this format.
+
 # m5b
 - Use GoogleAuthProvider to sign in
   - In the storage.html, if not sign in, add a sign in at the top (instead of "New Diagram"). If sign in, then show "New Diagram".
