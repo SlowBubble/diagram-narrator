@@ -547,7 +547,11 @@ async function handleInput(e) {
 
     if (e.code === 'Space') {
       e.preventDefault();
-      nextStep();
+      if (e.shiftKey) {
+        prevStep();
+      } else {
+        nextStep();
+      }
     }
 
     if (e.key === 'Escape') {
@@ -1144,10 +1148,13 @@ JSON Structure:
 - If the node text is longer than 15 characters, add "\\n" to break the text into multiple lines.
 - Design the narrative to be Q&A driven. Each step should either pose a question or answer the question from the previous step.
   - Only provide full context for the very first step's question.
+  - Keep each question short and not too specific. (E.g. "what do you need to do next?" instead of "what is the next physical action you need to take?")
   - Subsequent questions should use very short transitions to link from the previous answer (e.g., "After that...", "With those...").
   - Keep all steps concise, but ensure they are complete, natural-sounding sentences that are easy to say.
   - Don't do both (answering a question or posing a question) in the same step.
+  - For the final answer, you can emphasize it by starting with "My friend,".
 - If an existing diagram is provided, update it according to the instructions. Maintain existing IDs if they are still relevant. Return the COMPLETE updated diagram JSON.
+- Try to position the diagram within a square grid of 4x4 cells.
 
 Example:
 Instruction: "How to make a sandwich"
@@ -1155,21 +1162,128 @@ JSON:
 {
   "diagramId": "sandwich-making",
   "nodes": [
-    { "id": "bread", "text": "Bread", "x": 0, "y": 0 },
-    { "id": "filling", "text": "Filling", "x": 1, "y": 0 },
-    { "id": "sandwich", "text": "The Final\\nSandwich", "x": 1, "y": 1 }
+    {
+      "id": "bread",
+      "text": "2 Slices\nof Bread",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "filling",
+      "text": "Meat,\nCheese,\nVeggies",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "id": "condiments",
+      "text": "Condiments",
+      "x": 0,
+      "y": 2
+    },
+    {
+      "id": "assemble",
+      "text": "Combine",
+      "x": 1,
+      "y": 1
+    },
+    {
+      "id": "sandwich",
+      "text": "Delicious\nSandwich",
+      "x": 2,
+      "y": 1
+    }
   ],
   "edges": [
-    { "id": "e1", "start": "bread", "end": "sandwich" },
-    { "id": "e2", "start": "filling", "end": "sandwich" }
+    {
+      "end": "assemble",
+      "start": "bread",
+      "id": "e1"
+    },
+    {
+      "end": "assemble",
+      "id": "e2",
+      "start": "filling"
+    },
+    {
+      "end": "assemble",
+      "id": "e3",
+      "start": "condiments"
+    },
+    {
+      "start": "assemble",
+      "id": "e4",
+      "end": "sandwich"
+    }
   ],
   "narrative": [
-    { "utter": "To make a sandwich, what is the first ingredient you need?", "highlightedNodes": ["bread"] },
-    { "utter": "You need the bread.", "highlightedNodes": ["bread"] },
-    { "utter": "What else do you need to put inside?", "highlightedNodes": ["filling"] },
-    { "utter": "You need to put in the filling.", "highlightedNodes": ["filling"] },
-    { "utter": "With the filling added, what have you created?", "highlightedNodes": ["sandwich"], "highlightedEdges": ["e1", "e2"] },
-    { "utter": "You have created a sandwich.", "highlightedNodes": ["sandwich"] }
+    {
+      "utter": "To begin making a sandwich, what's the first ingredient you'll need?",
+      "highlightedNodes": []
+    },
+    {
+      "highlightedNodes": [
+        "bread"
+      ],
+      "utter": "You will first need two slices of bread."
+    },
+    {
+      "utter": "After getting your bread ready, what do you need to add?",
+      "highlightedNodes": [
+        "bread"
+      ]
+    },
+    {
+      "utter": "You can add specific fillings like sliced meats, cheese, or fresh vegetables.",
+      "highlightedNodes": [
+        "filling"
+      ]
+    },
+    {
+      "utter": "What can you add for extra flavor?",
+      "highlightedNodes": [
+        "filling"
+      ]
+    },
+    {
+      "highlightedNodes": [
+        "condiments"
+      ],
+      "utter": "You can also add condiments like mayo or mustard."
+    },
+    {
+      "utter": "Now that you have all the components, what do you need to do?",
+      "highlightedNodes": [
+        "bread",
+        "filling",
+        "condiments"
+      ]
+    },
+    {
+      "utter": "You combine the bread, filling and condiments together.",
+      "highlightedNodes": [
+        "assemble"
+      ],
+      "highlightedEdges": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    {
+      "utter": "After combining them, what is the result?",
+      "highlightedNodes": [
+        "assemble"
+      ]
+    },
+    {
+      "highlightedNodes": [
+        "sandwich"
+      ],
+      "utter": "My friend, you've created a delicious sandwich, ready to enjoy!",
+      "highlightedEdges": [
+        "e4"
+      ]
+    }
   ]
 }
 `;
@@ -1265,6 +1379,24 @@ function nextStep() {
     speak(step.utter);
   } else {
     speak(""); // Neutral state
+  }
+}
+
+function prevStep() {
+  currentNarrativeIndex--;
+
+  if (currentNarrativeIndex < -1) {
+    currentNarrativeIndex = narrative.length;
+  }
+
+  updateNarrationBanner();
+  render();
+
+  if (currentNarrativeIndex >= 0 && currentNarrativeIndex < narrative.length) {
+    const step = narrative[currentNarrativeIndex];
+    speak(step.utter);
+  } else {
+    speak("");
   }
 }
 

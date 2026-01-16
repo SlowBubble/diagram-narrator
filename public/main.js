@@ -116,7 +116,12 @@ function syncURL() {
 
 function handleInput(e) {
   if (e.code === 'Space') {
-    nextStep();
+    e.preventDefault();
+    if (e.shiftKey) {
+      prevStep();
+    } else {
+      nextStep();
+    }
   } else if (e.key === 'v') {
     // Switch to edit.html with current diagram ID
     if (currentDiagramIndex < diagrams.length) {
@@ -539,6 +544,44 @@ function nextStep() {
   } else {
     // Neutral state (index == length)
     speak(""); // Silence
+  }
+}
+
+function prevStep() {
+  if (currentDiagramIndex >= diagrams.length) {
+    // We are in Game Over. Go back to last diagram.
+    currentDiagramIndex = diagrams.length - 1;
+    const diagram = diagrams[currentDiagramIndex];
+    currentNarrativeIndex = diagram.narrative.length;
+    syncURL();
+    render();
+    speak("");
+    return;
+  }
+
+  currentNarrativeIndex--;
+
+  if (currentNarrativeIndex < -1) {
+    if (currentDiagramIndex > 0) {
+      currentDiagramIndex--;
+      const diagram = diagrams[currentDiagramIndex];
+      currentNarrativeIndex = diagram.narrative.length;
+      syncURL();
+    } else {
+      currentNarrativeIndex = -1;
+    }
+  }
+
+  render();
+
+  if (currentDiagramIndex < diagrams.length) {
+    const diagram = diagrams[currentDiagramIndex];
+    if (currentNarrativeIndex >= 0 && currentNarrativeIndex < diagram.narrative.length) {
+      const step = diagram.narrative[currentNarrativeIndex];
+      speak(step.utter);
+    } else {
+      speak("");
+    }
   }
 }
 
