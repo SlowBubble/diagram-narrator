@@ -100,6 +100,29 @@
       opacity: 1;
     }
 
+    #status-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #status-banner.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(10px);
+    }
+
     .menu-icon {
       display: flex;
       flex-direction: column;
@@ -171,6 +194,7 @@
   </div>
 
   <div id="narration-banner"></div>
+  <div id="status-banner"></div>
 
   <script type="module" src="edit.js"></script>
 </body>

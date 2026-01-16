@@ -602,7 +602,7 @@ async function handleInput(e) {
       e.preventDefault();
       isPublic = !isPublic;
       saveDiagramToFirestore();
-      alert(`Diagram is now ${isPublic ? 'PUBLIC' : 'PRIVATE'}`);
+      showStatus(`Diagram is now ${isPublic ? 'PUBLIC' : 'PRIVATE'}`);
       render();
     }
 
@@ -1766,3 +1766,13 @@ async function applyState(state) {
 }
 
 init();
+
+function showStatus(text) {
+  const banner = document.getElementById('status-banner');
+  if (!banner) return;
+  banner.textContent = text;
+  banner.classList.add('active');
+  setTimeout(() => {
+    banner.classList.remove('active');
+  }, 3000);
+}

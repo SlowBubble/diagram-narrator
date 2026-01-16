@@ -134,6 +134,29 @@
     .nav a:hover {
       color: #000;
     }
+
+    #status-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #status-banner.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(10px);
+    }
   </style>
 </head>
 
@@ -167,11 +190,12 @@
         Loading...
       </div>
     </div>
+    <div id="status-banner"></div>
   </div>
 
   <script type="module">
     import { db, auth, googleProvider } from './firebase-config.js';
-    import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { collection, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
     import { onAuthStateChanged, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
     const newDiagramLink = document.getElementById('new-diagram-link');
@@ -281,6 +305,32 @@
       }
     }
 
+    window.togglePublic = async function (id, currentStatus) {
+      if (!auth.currentUser) return;
+      try {
+        const newStatus = !currentStatus;
+        const docRef = doc(db, "diagrams", id);
+        await updateDoc(docRef, {
+          "info.isPublic": newStatus,
+          "info.lastEdited": Date.now()
+        });
+        showStatus(`Diagram is now ${newStatus ? 'PUBLIC' : 'PRIVATE'}`);
+        renderTable();
+      } catch (e) {
+        console.error("Error toggling public status:", e);
+        showStatus("Failed to update status");
+      }
+    }
+
+    function showStatus(text) {
+      const banner = document.getElementById('status-banner');
+      banner.textContent = text;
+      banner.classList.add('active');
+      setTimeout(() => {
+        banner.classList.remove('active');
+      }, 3000);
+    }
+
     async function renderTable() {
       if (!auth.currentUser) return;
 
@@ -317,7 +367,9 @@
             <a href="edit.html?id=${diagram.diagramId}" style="text-decoration: none; color: inherit; display: block;">
               <div class="diagram-id">
                 ${displayName}
-                ${diagram.isPublic ? '<span style="font-size: 10px; background: #e6fffa; color: #38b2ac; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle;">Public</span>' : ''}
+                <span onclick="event.preventDefault(); event.stopPropagation(); togglePublic('${diagram.diagramId}', ${diagram.isPublic})" style="cursor: pointer; font-size: 10px; background: ${diagram.isPublic ? '#e6fffa' : '#f7fafc'}; color: ${diagram.isPublic ? '#38b2ac' : '#718096'}; padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; border: 1px solid ${diagram.isPublic ? '#b2f5ea' : '#edf2f7'}; transition: all 0.2s;">
+                  ${diagram.isPublic ? 'Public' : 'Private'}
+                </span>
               </div>
               <div style="font-size: 12px; color: #aaa;">${diagram.diagramId}</div>
             </a>
