@@ -8,6 +8,8 @@ const totalCountElem = document.getElementById('total-count');
 const storyTitleDisplay = document.getElementById('story-title-display');
 const loadingOverlay = document.getElementById('loading-overlay');
 const statusMessage = document.getElementById('status-message');
+const loadingSpinner = document.getElementById('loading-spinner');
+const startBtn = document.getElementById('start-btn');
 
 let storyData = null;
 let vocabs = [];
@@ -17,6 +19,7 @@ let storyId = null;
 
 // States: 'SYLLABLES', 'WHOLE_WORD', 'ASK_SPELLING', 'SHOW_SPELLING'
 let currentState = 'SYLLABLES';
+let isPracticeStarted = false;
 let isSpeaking = false;
 
 // Initialize
@@ -43,7 +46,13 @@ async function init() {
       } else {
         totalCountElem.textContent = vocabs.length;
         renderWord();
-        loadingOverlay.classList.add('hidden');
+
+        // Show start button instead of immediately starting
+        loadingSpinner.classList.add('hidden');
+        statusMessage.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+
+        startBtn.onclick = startPractice;
       }
     } else {
       statusMessage.textContent = 'Story not found.';
@@ -54,7 +63,16 @@ async function init() {
   }
 }
 
-function renderWord(spellingMode = false, obscured = false) {
+async function startPractice() {
+  if (isPracticeStarted) return;
+  isPracticeStarted = true;
+  loadingOverlay.classList.add('hidden');
+  renderWord(false, false, true); // Render without highlight
+  await speak("What word is this?");
+  setTimeout(() => renderWord(), 500); // Show highlight after 500ms
+}
+
+function renderWord(spellingMode = false, obscured = false, skipHighlight = false) {
   const vocab = vocabs[currentIndex];
   if (!vocab) return;
   const syllables = vocab.brokenDownWord.split('|');
@@ -79,11 +97,10 @@ function renderWord(spellingMode = false, obscured = false) {
 
     span.textContent = text;
     span.className = 'syllable';
-    if (currentState === 'WHOLE_WORD' || currentState === 'SHOW_SPELLING' || currentState === 'ASK_SPELLING') {
-      span.classList.add('highlight-all');
-    }
-    if (currentState === 'SYLLABLES' && i === currentSyllableIndex) {
-      span.classList.add('active');
+    if (!skipHighlight) {
+      if (currentState === 'WHOLE_WORD' || currentState === 'ASK_SPELLING' || (currentState === 'SYLLABLES' && i === currentSyllableIndex)) {
+        span.classList.add('active');
+      }
     }
     wordDisplay.appendChild(span);
 
@@ -97,6 +114,11 @@ function renderWord(spellingMode = false, obscured = false) {
 }
 
 async function handleSpace() {
+  if (!isPracticeStarted) {
+    startPractice();
+    return;
+  }
+
   if (isSpeaking) return;
 
   const vocab = vocabs[currentIndex];
@@ -124,8 +146,12 @@ async function handleSpace() {
   } else if (currentState === 'ASK_SPELLING') {
     // Show underscores for the word and ask "How do you spell?"
     renderWord(true, true);
-    promptDisplay.textContent = `How do you spell this word?`;
+    const fullWord = vocab.brokenDownWord.replace(/\|/g, '');
+    const questionText = `How do you spell this word?`;
+    const questionUtterance = `How do you spell the word, ${fullWord}?`;
+    promptDisplay.textContent = questionText;
     promptDisplay.style.display = 'block';
+    await speak(questionUtterance);
     currentState = 'SHOW_SPELLING';
   } else if (currentState === 'SHOW_SPELLING') {
     // Show word and spell out (syllable by syllable, letter by letter)
@@ -144,7 +170,7 @@ async function handleSpace() {
       // Spell out the letters of the current syllable in lowercase at a very slow rate
       // e.g. "Dad" -> "d-a-d"
       const spelling = syllables[i].toLowerCase().split('').join('-');
-      await speak(spelling, 0.1);
+      await speak(spelling, 0.6);
 
       if (i < syllables.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -163,12 +189,14 @@ async function handleSpace() {
         const allSpans = wordDisplay.querySelectorAll('.syllable');
         allSpans.forEach(s => {
           s.classList.remove('active');
-          s.classList.remove('highlight-all');
         });
 
         currentSyllableIndex = 0;
         currentState = 'SYLLABLES';
-        renderWord();
+        renderWord(false, false, true); // Render without highlight
+        speak("What word is this?").then(() => {
+          setTimeout(() => renderWord(), 500); // Show highlight after 500ms
+        });
       }
     }, 500);
   }

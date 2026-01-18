@@ -84,15 +84,13 @@
     .syllable {
       display: inline-block;
       transition: all 0.3s ease;
-      color: var(--text-dim);
-    }
-
-    .syllable.highlight-all {
       color: var(--text-main);
     }
 
     .syllable.active {
-      color: var(--accent) !important;
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-underline-offset: 8px;
     }
 
     #prompt-display {
@@ -196,8 +194,21 @@
 
 <body>
   <div id="loading-overlay">
-    <div class="spinner"></div>
+    <div id="loading-spinner" class="spinner"></div>
     <div id="status-message">Loading vocabulary...</div>
+    <button id="start-btn" class="hidden" style="
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 1rem;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    ">Start Practice</button>
   </div>
 
   <header>
