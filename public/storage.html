@@ -165,6 +165,7 @@
     <div class="nav">
       <a href="index.html">View Diagrams</a>
       <a href="index.html?canto=1">Canto Diagrams</a>
+      <a href="storyStorage.html">My Stories</a>
       <a href="editStory.html">Create Story</a>
       <a href="edit.html" id="new-diagram-link" style="display: none;">New Diagram</a>
       <div id="auth-status" style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
@@ -365,7 +366,7 @@
 
         tr.innerHTML = `
           <td>
-            <a href="edit.html?id=${diagram.diagramId}" style="text-decoration: none; color: inherit; display: block;">
+            <a href="index.html?id=${diagram.diagramId}" style="text-decoration: none; color: inherit; display: block;">
               <div class="diagram-id">
                 ${displayName}
                 <span onclick="event.preventDefault(); event.stopPropagation(); togglePublic('${diagram.diagramId}', ${diagram.isPublic})" style="cursor: pointer; font-size: 10px; background: ${diagram.isPublic ? '#e6fffa' : '#f7fafc'}; color: ${diagram.isPublic ? '#38b2ac' : '#718096'}; padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; border: 1px solid ${diagram.isPublic ? '#b2f5ea' : '#edf2f7'}; transition: all 0.2s;">
@@ -377,6 +378,7 @@
           </td>
           <td class="date-cell">${formatDate(diagram.lastEdited)}</td>
           <td class="actions-cell">
+            <a href="edit.html?id=${diagram.diagramId}" class="btn" style="background: #f1f5f9; color: #475569; margin-right: 8px; text-decoration: none;">Edit</a>
             <button onclick="deleteDiagram('${diagram.diagramId}')" class="btn" style="color: #ff4444; background: #fff5f5; border: 1px solid #ffebeb; cursor: pointer;">Delete</button>
           </td>
         `;

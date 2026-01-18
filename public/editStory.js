@@ -42,6 +42,13 @@ async function loadStory(id) {
       jsonDisplay.value = JSON.stringify(data.story, null, 2);
       statusMessage.textContent = 'Story loaded';
 
+      // Update vocab link
+      const vocabLink = document.getElementById('vocab-link');
+      if (vocabLink) {
+        vocabLink.href = `storyVocab.html?id=${id}`;
+        vocabLink.style.display = 'inline';
+      }
+
       // Update URL hash or history to keep ID clean if needed,
       // but keeping it in query param is fine for direct access.
     } else {
@@ -55,11 +62,31 @@ async function loadStory(id) {
   }
 }
 
-// Handle Cmd+S to save
+// Handle shortcuts
 window.addEventListener('keydown', async (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'u') {
+    e.preventDefault();
+    window.location.href = 'storyStorage.html';
+    return;
+  }
+
   if ((e.metaKey || e.ctrlKey) && e.key === 's') {
     e.preventDefault();
     await handleManualSave();
+  }
+
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    if (currentStoryId) {
+      window.location.href = `viewerStory.html?id=${currentStoryId}`;
+    } else {
+      // If not saved yet, maybe save first or alert
+      if (jsonDisplay.value.trim()) {
+        await handleManualSave();
+        if (currentStoryId) {
+          window.location.href = `viewerStory.html?id=${currentStoryId}`;
+        }
+      }
+    }
   }
 });
 
@@ -79,7 +106,7 @@ async function handleManualSave() {
 }
 
 promptArea.addEventListener('keydown', async (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
+  if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
     e.preventDefault();
     const prompt = promptArea.value.trim();
     const count = parseInt(sentenceCountInput.value) || 6;
@@ -212,6 +239,13 @@ async function saveStoryToFirestore(storyJson, existingId = null) {
     } else {
       await setDoc(doc(db, "stories", id), storyDoc);
       currentStoryId = id;
+
+      // Update vocab link
+      const vocabLink = document.getElementById('vocab-link');
+      if (vocabLink) {
+        vocabLink.href = `storyVocab.html?id=${id}`;
+        vocabLink.style.display = 'inline';
+      }
 
       // Update URL with the new ID
       const newUrl = new URL(window.location.href);

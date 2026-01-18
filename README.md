@@ -1,4 +1,36 @@
 # wishlist
+# m6l
+- instead of highlighting the part, just underline the part to make it more subtle.
+- in vocab, when first showing the word, utter "What word is this?"
+- And when showing "How do you spell...", utter the full question.
+
+# m6k
+- build a storyVocab.html and storyVocab.js with the provided id.
+- Display a word, highlighting 1 syllable
+- When space is pressed, read the syllable and after 200ms of finishing reading, move on to the next syllable.
+- When all the syllables are done, then highlight the whole word
+- When space is pressed while the whole word is highlighted, read the whole word
+  - When space is pressed again. hide the word and ask how do you spell the word.
+  - When space is pressed, show the word and spell out the word, pausing 500ms between each syllable.
+  - Then move on to the next word.
+- Display how many words out of how many words are done. on the lower right.
+- Allow navigation from viewStory.html to storyVocab.html of the same id via `v`.
+# m6j
+- viewStory: allow navigating between phrases via left and right arrow keys.
+
+# m6i
+- create a storyStorage.html and storyStorage.js
+  - display stories similar to storage.html
+- Allow navigation from viewStory.html and editStory.html to storyStorage.html via `cmd+u` and also a button on the upper right.
+
+# m6h
+- Create a viewer for the story called viewerStory.html and viewerStory.js
+  - from the id, retrieve the story.
+  - display 1 sentence at a time, and highlight the current phrase.
+  - When space is pressed, read the current phrase using the speech api, and then move on to the next phrase.
+  - When the end is reached, display "The End".
+- Naviage from editStory.html to viewerStory.html of the same id via the keyboard shortcut `cmd+enter`.
+
 
 # m6g
 - Add a title also from the generated json.

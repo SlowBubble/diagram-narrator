@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Story Storage - Diagram Narrator</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      overflow: auto;
+      height: auto;
+      min-height: 100vh;
+      display: block;
+      padding: 40px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+    }
+
+    #app {
+      display: block;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(to right, #0ea5e9, #6366f1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .table-container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f0f0f0;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+
+    th {
+      background: #f8f9fa;
+      padding: 16px 24px;
+      text-align: left;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 2px solid #eee;
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid #eee;
+      color: #1e293b;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #fcfcfc;
+    }
+
+    .story-title {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .date-cell {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .actions-cell {
+      text-align: right;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: #0ea5e9;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #0284c7;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline-danger {
+      color: #ef4444;
+      background: #fef2f2;
+      border-color: #fee2e2;
+    }
+
+    .btn-outline-danger:hover {
+      background: #fee2e2;
+    }
+
+    .empty-state {
+      padding: 60px;
+      text-align: center;
+      color: #64748b;
+      font-size: 18px;
+    }
+
+    .nav {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .nav a {
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .nav a:hover {
+      color: #0f172a;
+    }
+
+    #status-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #status-banner.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(10px);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="nav">
+      <a href="index.html">Diagrams</a>
+      <a href="storage.html">Diagram Storage</a>
+      <div id="auth-info" style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
+        <span id="user-display-name" style="color: #64748b;"></span>
+        <a href="#" id="auth-action-link" style="color: #0ea5e9;">Sign In</a>
+      </div>
+    </div>
+
+    <header>
+      <h1>Story Storage</h1>
+      <a href="editStory.html" class="btn btn-primary">New Story</a>
+    </header>
+
+    <div class="table-container">
+      <table id="stories-table" style="display: none;">
+        <thead>
+          <tr>
+            <th>Story Title / ID</th>
+            <th>Last Updated</th>
+            <th class="actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="stories-list">
+          <!-- Loaded via JS -->
+        </tbody>
+      </table>
+      <div id="loading-state" class="empty-state">
+        Checking authentication...
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; color: #94a3b8; font-size: 0.8rem; text-align: center;">
+      Press <kbd
+        style="background: #fff; border: 1px solid #e2e8f0; padding: 2px 5px; border-radius: 4px; box-shadow: 0 1px 0 #e2e8f0;">Cmd
+        + Enter</kbd> for a new story
+    </div>
+
+    <div id="status-banner"></div>
+  </div>
+
+  <script type="module" src="storyStorage.js"></script>
+</body>
+
+</html>

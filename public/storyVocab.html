@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulary Practice - Diagram Narrator</title>
+  <meta name="description"
+    content="Master story vocabulary through syllable breakdown and interactive spelling practice.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-dim: #64748b;
+      --accent: #0ea5e9;
+      --accent-glow: rgba(14, 165, 233, 0.1);
+      --glass: rgba(255, 255, 255, 0.8);
+      --glass-border: #e2e8f0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      background: linear-gradient(to right, #0ea5e9, #6366f1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    #vocab-card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      padding: 4rem 6rem;
+      border-radius: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+      text-align: center;
+      min-width: 400px;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #word-display {
+      font-size: 6rem;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: 2px;
+    }
+
+    .syllable {
+      display: inline-block;
+      transition: all 0.3s ease;
+      color: var(--text-dim);
+    }
+
+    .syllable.highlight-all {
+      color: var(--text-main);
+    }
+
+    .syllable.active {
+      color: var(--accent) !important;
+    }
+
+    #prompt-display {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .progress-indicator {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--glass);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+      padding: 0.75rem 1.5rem;
+      border-radius: 1rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-indicator span {
+      color: var(--accent);
+      margin: 0 0.25rem;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    kbd {
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 0 0 #e2e8f0;
+      margin: 0 4px;
+    }
+
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      gap: 1.5rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(56, 189, 248, 0.1);
+      border-left-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <div id="status-message">Loading vocabulary...</div>
+  </div>
+
+  <header>
+    <h1>Vocabulary Practice</h1>
+    <div id="story-title-display" style="color: var(--text-dim); font-size: 0.9rem;"></div>
+  </header>
+
+  <main class="container">
+    <div id="vocab-card">
+      <div id="prompt-display"></div>
+      <div id="word-display"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div><kbd>Space</kbd> Continue</div>
+  </footer>
+
+  <div class="progress-indicator">
+    Word <span id="current-count">0</span> of <span id="total-count">0</span>
+  </div>
+
+  <script type="module" src="storyVocab.js"></script>
+</body>
+
+</html>

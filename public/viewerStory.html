@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Story Viewer - Diagram Narrator</title>
+  <meta name="description"
+    content="A beautiful and interactive viewer for stories with syllable highlighting and text-to-speech.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-dim: #64748b;
+      --accent: #0ea5e9;
+      --highlight: rgba(14, 165, 233, 0.1);
+      --highlight-active: rgba(14, 165, 233, 0.2);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: linear-gradient(to right, #0ea5e9, #6366f1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #story-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    #content {
+      max-width: 900px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .sentence {
+      font-size: 3rem;
+      line-height: 1.5;
+      font-weight: 400;
+      margin: 0;
+      display: none;
+      transition: all 0.3s ease;
+    }
+
+    .sentence.active {
+      display: block;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .phrase {
+      display: inline;
+    }
+
+    .phrase.active {
+      color: var(--accent);
+    }
+
+    #controls {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      background: linear-gradient(to top, var(--bg-color), transparent);
+    }
+
+    kbd {
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: #1e293b;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 0 0 #e2e8f0;
+      margin: 0 4px;
+    }
+
+    .the-end {
+      font-size: 5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: celebrate 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes celebrate {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-5deg);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    #loading {
+      font-size: 1.25rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(14, 165, 233, 0.1);
+      border-left-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 id="story-title">Story Viewer</h1>
+    <a id="storage-link" href="storyStorage.html" class="btn-nav"
+      style="text-decoration: none; color: var(--accent); font-weight: 600; font-size: 0.9rem;">My Stories</a>
+  </header>
+
+  <main id="story-container">
+    <div id="loading">
+      <div class="spinner"></div>
+      <span>Loading your story...</span>
+    </div>
+    <div id="content"></div>
+  </main>
+
+  <footer id="controls">
+    Press <kbd>Space</kbd> to read next, <kbd>v</kbd> for Vocab
+  </footer>
+
+  <script type="module" src="viewerStory.js"></script>
+</body>
+
+</html>
