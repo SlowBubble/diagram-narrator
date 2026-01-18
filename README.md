@@ -1,5 +1,29 @@
 # wishlist
 
+# m6g
+- Add a title also from the generated json.
+- form the id from that title (replacing spaces with -).
+
+# m6f
+- Refine the prompt about breaking syllables so that the non-vowel should be part of the next syllable if it is sounded with the next vowel.
+  - "teacher" is currently "teach|er" but should be "teach|er". "color" is currently "col|or" but should be "co|lor".
+
+# m6e
+- Add another input below the text area, that specify the number of sentences to generate. Default to 6.
+
+# m6d
+- Refine the prompt some more
+  - "together" is currently "to|geth|er" but should be "to|ge|ther".
+
+# m6c
+- allow accessing the story via query param `?id=...`
+
+# m6b
+- change the theme from dark to light
+- Allow the generated json to be edited, and saved when `cmd+s` is pressed
+- Edit the prompt to break syllables more precisely like how it is actually read.
+  - Currently "shouted" is broken down into "shout|ed", but it should be "shou|ted".
+ 
 # m6a
 
 - Create a editStory.html and editStory.js app

@@ -21,8 +21,14 @@
       <textarea id="story-prompt"
         placeholder="Enter a story prompt or topic (e.g., 'A story about a brave cat named Max who finds a lost kitten')..."
         autofocus></textarea>
-      <div class="text-dim text-xs" style="margin-top: 0.5rem;">
-        Press <kbd>Enter</kbd> to generate. Use <kbd>Shift + Enter</kbd> for new lines.
+      <div class="input-controls">
+        <div class="control-group">
+          <label for="sentence-count" class="text-xs text-dim">Number of sentences:</label>
+          <input type="number" id="sentence-count" min="1" max="20" value="6">
+        </div>
+        <div class="text-dim text-xs">
+          Press <kbd>Enter</kbd> to generate. Use <kbd>Shift + Enter</kbd> for new lines.
+        </div>
       </div>
     </section>
 
@@ -31,7 +37,10 @@
         <span class="output-label">Generated JSON</span>
         <span id="status-message" class="text-xs text-dim"></span>
       </div>
-      <pre id="json-display" class="language-json">{}</pre>
+      <textarea id="json-display" spellcheck="false"></textarea>
+      <div class="text-dim text-xs" style="margin-top: 0.5rem;">
+        Press <kbd>Cmd + S</kbd> to save changes.
+      </div>
     </section>
   </main>
 
