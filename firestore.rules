@@ -16,6 +16,11 @@ service cloud.firestore {
       allow read, create: if true;
       allow update, delete: if request.auth != null && resource.data.info.owner == request.auth.uid;
     }
+
+    match /stories/{storyId} {
+      allow read, create: if true;
+      allow update, delete: if request.auth != null && resource.data.info.owner == request.auth.uid;
+    }
     
     // Default deny for other collections
     match /{document=**} {
