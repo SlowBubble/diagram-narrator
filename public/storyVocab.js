@@ -17,7 +17,7 @@ let currentIndex = 0;
 let currentSyllableIndex = 0;
 let storyId = null;
 
-// States: 'SYLLABLES', 'WHOLE_WORD', 'ASK_SPELLING', 'SHOW_SPELLING'
+// States: 'SYLLABLES', 'WHOLE_WORD', 'ASK_SPELLING', 'SHOW_SPELLING', 'WAIT_FOR_NEXT_WORD'
 let currentState = 'SYLLABLES';
 let isPracticeStarted = false;
 let isSpeaking = false;
@@ -98,7 +98,7 @@ function renderWord(spellingMode = false, obscured = false, skipHighlight = fals
     span.textContent = text;
     span.className = 'syllable';
     if (!skipHighlight) {
-      if (currentState === 'WHOLE_WORD' || currentState === 'ASK_SPELLING' || (currentState === 'SYLLABLES' && i === currentSyllableIndex)) {
+      if (['WHOLE_WORD', 'ASK_SPELLING', 'SHOW_SPELLING', 'WAIT_FOR_NEXT_WORD'].includes(currentState) || (currentState === 'SYLLABLES' && i === currentSyllableIndex)) {
         span.classList.add('active');
       }
     }
@@ -168,7 +168,6 @@ async function handleSpace() {
       if (spans[i]) spans[i].classList.add('active');
 
       // Spell out the letters of the current syllable in lowercase at a very slow rate
-      // e.g. "Dad" -> "d-a-d"
       const spelling = syllables[i].toLowerCase().split('').join('-');
       await speak(spelling, 0.6);
 
@@ -177,28 +176,27 @@ async function handleSpace() {
       }
     }
 
-    // Move to next word
-    setTimeout(() => {
-      currentIndex++;
-      if (currentIndex >= vocabs.length) {
-        // Finished all words
-        wordDisplay.innerHTML = '<div style="font-size: 3rem">Well done! 🎉</div>';
-        currentState = 'FINISHED';
-      } else {
-        // Clear styles for next word
-        const allSpans = wordDisplay.querySelectorAll('.syllable');
-        allSpans.forEach(s => {
-          s.classList.remove('active');
-        });
+    // After showing spelling, say the full word again
+    const fullWord = vocab.brokenDownWord.replace(/\|/g, '');
+    await speak(fullWord);
 
-        currentSyllableIndex = 0;
-        currentState = 'SYLLABLES';
-        renderWord(false, false, true); // Render without highlight
-        speak("What word is this?").then(() => {
-          setTimeout(() => renderWord(), 500); // Show highlight after 500ms
-        });
-      }
-    }, 500);
+    currentState = 'WAIT_FOR_NEXT_WORD';
+    renderWord(); // Highlight whole word
+  } else if (currentState === 'WAIT_FOR_NEXT_WORD') {
+    // Move to next word after user confirms with space
+    currentIndex++;
+    if (currentIndex >= vocabs.length) {
+      // Finished all words
+      wordDisplay.innerHTML = '<div style="font-size: 3rem">Well done! 🎉</div>';
+      currentState = 'FINISHED';
+    } else {
+      currentSyllableIndex = 0;
+      currentState = 'SYLLABLES';
+      renderWord(false, false, true); // Render without highlight
+      speak("What word is this?").then(() => {
+        setTimeout(() => renderWord(), 500); // Show highlight after 500ms
+      });
+    }
   }
 }
 
@@ -225,6 +223,12 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     e.preventDefault();
     handleSpace();
+  } else if (e.key.toLowerCase() === 'u') {
+    window.location.href = 'storyStorage.html';
+  } else if (e.key.toLowerCase() === 'v') {
+    if (storyId) {
+      window.location.href = `viewerStory.html?id=${storyId}`;
+    }
   }
 });
 

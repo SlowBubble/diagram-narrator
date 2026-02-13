@@ -146,7 +146,7 @@ Rules:
 0. title: A short, catchy title for the story.
 1. brokenDownSentences: Generate EXACTLY ${sentenceCount} sentences for the story. Break each sentence into natural, easy-to-read phrases using the "|" character.
    - Example: "Daddy took Lisa to the park." -> "Daddy took Lisa|to the park."
-2. vocabs: Extract 5-10 key vocabulary words from the story.
+2. vocabs: Extract 5-10 key vocabulary words from the story. CRITICAL: Focus strictly on multi-syllable words for this section. Avoid one-syllable words unless the story is extremely simple and multi-syllable options are unavailable.
 3. brokenDownWord: Break the word into syllables using "|" based on how it is ACTIVELY READ or SPOKEN, not necessarily dictionary rules.
    - CRITICAL: Break syllables so that a consonant is part of the next syllable if it is sounded with the next vowel.
     - Example: "shouted" should be "shou|ted" (not "shout|ed").

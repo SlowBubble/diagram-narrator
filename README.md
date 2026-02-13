@@ -1,4 +1,13 @@
 # wishlist
+
+# m6n
+- In prompt, just focus on multi-syllable words for generating vocab.
+# m6m
+In the vocab page
+- `u` will go back to the story storage page
+- `v` will go to the viewer page for the story
+- After spelling the word, also say the full word after that, and don't go to the next word until the user presses space again.
+
 # m6l
 - instead of highlighting the part, just underline the part to make it more subtle.
 - in vocab, when first showing the word, utter "What word is this?"
