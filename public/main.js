@@ -1,7 +1,7 @@
 import { diagrams as staticDiagrams } from './diagrams.js';
 import { diagrams as cantoDiagrams } from './cantoDiagrams.js';
 import { db } from './firebase-config.js';
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const isCanto = urlParams.get('canto') === '1';
@@ -79,6 +79,35 @@ async function init() {
     const idx = diagrams.findIndex(d => d.diagramId === idParam);
     if (idx >= 0) {
       currentDiagramIndex = idx;
+    } else {
+      // Try to fetch it specifically if not found in the public list
+      try {
+        const docRef = doc(db, "diagrams", idParam);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          let diagram = null;
+          // Handle new format: { diagram: { ... }, info: { ... } }
+          if (data.diagram && data.info) {
+            diagram = {
+              ...data.diagram,
+              diagramId: data.info.id,
+              lastEdited: data.info.lastEdited
+            };
+          } else if (data.diagramId) {
+            // Fallback for old format
+            diagram = data;
+          }
+
+          if (diagram) {
+            // Add it to the list so navigation still works
+            diagrams.unshift(diagram);
+            currentDiagramIndex = 0;
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching specific diagram:", e);
+      }
     }
   }
 
